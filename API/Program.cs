@@ -2,7 +2,7 @@ using Application.Interfaces;
 using Application.Services;
 using AutoMapper;
 using Domain;
-using Domain.Entities;
+using Domain.Entities.Supporting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

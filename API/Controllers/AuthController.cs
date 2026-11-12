@@ -1,15 +1,18 @@
 namespace API.Controllers
 {
-  using Application.Interfaces;
-  using Domain.Dtos.Auth;
-  using Domain.Entities;
-  using Microsoft.AspNetCore.Authorization;
-  using Microsoft.AspNetCore.Mvc;
+    using Application.Interfaces;
+    using Domain.Dtos.Auth;
+    using Domain.Entities.Supporting;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
 
-  [Route("api/[controller]")]
+    [Route("api/[controller]")]
   [ApiController]
   public class AuthController : ControllerBase
   {
+        /// <summary>
+        /// Provides access to authentication operations.
+        /// </summary>
     private readonly IAuthService _authService;
 
     public AuthController(IAuthService authService)
@@ -17,7 +20,6 @@ namespace API.Controllers
       _authService = authService;
     }
 
-    // Route -> Seed Roles to DB
     [HttpPost]
     [Route("seed-roles")]
     public async Task<IActionResult> SeedRoles()
@@ -25,8 +27,11 @@ namespace API.Controllers
       var seedResult = await _authService.SeedRolesAsync();
       return StatusCode(seedResult.StatusCode, seedResult.Message);
     }
-
-    // Route -> Register
+        /// <summary>
+        /// Registers a user account.
+        /// </summary>
+        /// <param name="registerDto">The registration details.</param>
+        /// <returns>An HTTP response containing the registration result's status code and message.</returns>
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -34,8 +39,12 @@ namespace API.Controllers
       var registerResult = await _authService.RegisterAsync(registerDto);
       return StatusCode(registerResult.StatusCode, registerResult.Message);
     }
-
-    // Route -> Login
+        /// <summary>
+        /// Authenticates the supplied credentials.
+        /// </summary>
+        /// <param name="loginDto">The login credentials.</param>
+        /// <returns>An <see cref="UnauthorizedResult"/> if the credentials are invalid; otherwise, an <see
+        /// cref="OkObjectResult"/> containing the login response.</returns>
     [HttpPost]
     [Route("login")]
     public async Task<ActionResult<LoginServiceResponseDto>> Login([FromBody] LoginDto loginDto)
@@ -50,10 +59,12 @@ namespace API.Controllers
       return Ok(loginResult);
     }
 
-    // Route -> Update User Role
-    // An Owner can change everything
-    // An Admin can change just User to Manager or reverse
-    // Manager and User Roles don't have access to this Route
+        /// <summary>
+        /// Updates a user's role.
+        /// </summary>
+        /// <param name="updateRoleDto">The data identifying the user and the role to assign.</param>
+        /// <returns>An action result indicating success or containing the status code and message returned by the role update
+        /// operation.</returns>
     [HttpPost]
     [Route("update-role")]
     [Authorize(Roles = StaticUserRoles.ADMIN)]
@@ -70,8 +81,11 @@ namespace API.Controllers
         return StatusCode(updateRoleResult.StatusCode, updateRoleResult.Message);
       }
     }
-
-    // Route -> getting data of a user from it's JWT
+        /// <summary>
+        /// Authenticates the supplied token and returns the current user's details.
+        /// </summary>
+        /// <param name="token">The token used to retrieve the current user's details.</param>
+        /// <returns>The user's details if the token is valid; otherwise, an unauthorized response.</returns>
     [HttpPost]
     [Route("me")]
     public async Task<ActionResult<LoginServiceResponseDto>> Me([FromBody] MeDto token)
@@ -93,8 +107,10 @@ namespace API.Controllers
         return Unauthorized("Invalid Token");
       }
     }
-
-    // Route -> List of all users with details
+        /// <summary>
+        /// Gets the list of users.
+        /// </summary>
+        /// <returns>An action result containing the list of users.</returns>
     [HttpGet]
     [Route("users")]
     public async Task<ActionResult<IEnumerable<UserInfoResult>>> GetUsersList()
@@ -103,8 +119,12 @@ namespace API.Controllers
 
       return Ok(usersList);
     }
-
-    // Route -> Get a User by UserName
+        /// <summary>
+        /// Retrieves user details by user name.
+        /// </summary>
+        /// <param name="userName">The user name to look up.</param>
+        /// <returns>An action result containing the user details if found, or a 404 Not Found response if no matching user
+        /// exists.</returns>
     [HttpGet]
     [Route("users/{userName}")]
     public async Task<ActionResult<UserInfoResult>> GetUserDetailsByUserName([FromRoute] string userName)
@@ -119,8 +139,10 @@ namespace API.Controllers
         return NotFound("UserName not found");
       }
     }
-
-    // Route -> Get List of all usernames for send message
+        /// <summary>
+        /// Retrieves the list of user names.
+        /// </summary>
+        /// <returns>An action result containing the user names.</returns>
     [HttpGet]
     [Route("usernames")]
     public async Task<ActionResult<IEnumerable<string>>> GetUserNamesList()

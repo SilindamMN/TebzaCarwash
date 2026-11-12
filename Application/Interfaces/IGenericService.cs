@@ -4,6 +4,12 @@
   using System.Collections.Generic;
   using System.Threading.Tasks;
 
+    /// <summary>
+    /// Defines asynchronous operations for creating, retrieving, updating, and deleting entities through data transfer
+    /// objects.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <typeparam name="TDto">The data transfer object type used to represent entities.</typeparam>
   public interface IGenericService<TEntity, TDto>
     where TEntity : class
     where TDto : class

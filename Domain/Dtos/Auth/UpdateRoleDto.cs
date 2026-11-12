@@ -14,7 +14,8 @@
   {
     ADMIN,
     CUSTOMER,
-    RUNNER,
-    USER
+    WASHER,
+    USER,
+    RUNNER
   }
 }

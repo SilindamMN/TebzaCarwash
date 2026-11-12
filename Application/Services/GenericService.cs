@@ -6,6 +6,11 @@
   using Domain.Dtos.General;
   using Microsoft.EntityFrameworkCore;
 
+    /// <summary>
+    /// Provides CRUD operations for entities of type TEntity using DTOs of type TDto.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type managed by the service.</typeparam>
+    /// <typeparam name="TDto">The data transfer object type used to represent entities.</typeparam>
   public class GenericService<TEntity, TDto> : IGenericService<TEntity, TDto>
         where TEntity : class
         where TDto : class
@@ -13,12 +18,21 @@
     private readonly ApplicationDbContext dataContext;
     private readonly IMapper mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericService"/> class.
+        /// </summary>
+        /// <param name="dataContext">The database context used for data access.</param>
+        /// <param name="mapper">The mapper used to map between objects.</param>
     public GenericService(ApplicationDbContext dataContext, IMapper mapper)
     {
       this.dataContext = dataContext;
       this.mapper = mapper;
     }
-
+        /// <summary>
+        /// Creates and saves an entity from the specified DTO.
+        /// </summary>
+        /// <param name="entityDto">The DTO containing the entity data.</param>
+        /// <returns>A response indicating whether creation succeeded, with a status code and message.</returns>
     public async Task<GeneralServiceResponseDto> CreateAsync(TDto entityDto)
     {
       try
@@ -36,6 +50,10 @@
       }
     }
 
+        /// <summary>
+        /// Retrieves all active entities and maps them to DTOs.
+        /// </summary>
+        /// <returns>The mapped DTOs, or an empty collection if no active entities are found or an error occurs.</returns>
     public async Task<IEnumerable<TDto>> GetAllAsync()
     {
       try
@@ -52,7 +70,11 @@
         return Enumerable.Empty<TDto>();
       }
     }
-
+        /// <summary>
+        /// Retrieves the DTO with the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier of the entity to retrieve.</param>
+        /// <returns>The mapped DTO, or <c>null</c> if the entity is not found or an error occurs.</returns>
     public async Task<TDto?> GetByIdAsync(int id)
     {
       try
@@ -70,7 +92,12 @@
         return null;
       }
     }
-
+/// <summary>
+/// Updates an existing entity using the values in the supplied DTO.
+/// </summary>
+/// <param name="entityDto">The DTO containing the values to apply to the existing entity.</param>
+/// <returns>A response indicating whether the update succeeded. The response includes a 404 status if the entity is not found, a
+/// 200 status if the update succeeds, or a 400 status if an exception occurs.</returns>
     public async Task<GeneralServiceResponseDto> UpdateAsync(TDto entityDto)
     {
       try
@@ -92,7 +119,12 @@
         return GeneralServiceResponseDto.CreateResponse(false, 400, $"Failed to update entity: {ex.Message}");
       }
     }
-
+        /// <summary>
+        /// Deletes the entity with the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier of the entity to delete.</param>
+        /// <returns>A response indicating whether the entity was deleted. The response has a 404 status if the entity is not
+        /// found, a 200 status if deletion succeeds, or a 400 status if deletion fails.</returns>
     public async Task<GeneralServiceResponseDto> DeleteAsync(int id)
     {
       try
@@ -113,7 +145,10 @@
         return GeneralServiceResponseDto.CreateResponse(false, 400, $"Failed to delete entity: {ex.Message}");
       }
     }
-
+        /// <summary>
+        /// Saves pending changes to the data store.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
     private async Task SaveAsync()
     {
       try

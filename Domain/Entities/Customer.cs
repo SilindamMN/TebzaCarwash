@@ -1,15 +1,23 @@
 ﻿namespace Domain.Entities
 {
-  using System.Collections.Generic;
-  using System.ComponentModel.DataAnnotations.Schema;
+    using Domain.Entities.Supporting;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations.Schema;
 
-  public class Customer : BaseEntity<int>
-  {
-    [ForeignKey(nameof(ApplicationUser))]
-    public int UserId { get; set; }
-    public ApplicationUser? User { get; set; }
+    /// <summary>
+    /// Represents a customer associated with an application user.
+    /// </summary>
+    public class Customer : BaseEntity<int>
+    {
+        public int UserId { get; set; }
 
-    public string? Address { get; set; }
-    public string? PhoneNumber { get; set; }
-  }
+        [ForeignKey(nameof(UserId))]
+        public ApplicationUser? User { get; set; }
+
+        public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+
+        public ICollection<Wash> Washes { get; set; } = new List<Wash>();
+
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    }
 }
