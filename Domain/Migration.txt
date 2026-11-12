@@ -1,0 +1,15 @@
+﻿# Generate Initial Migration
+dotnet ef migrations add InitialMigration --project Domain --startup-project API --context ApplicationDbContext
+
+# Generate Delta Migration
+dotnet ef migrations add Upgrade --project Domain --startup-project API --context ApplicationDbContext
+
+#Update Database
+dotnet ef database update  --project Domain --startup-project API --context ApplicationDbContext
+
+# Rollback to a Specific Migration
+
+dotnet ef database update {PreviousMigrationName} --project Domain --startup-project API --context ApplicationDbContext
+
+# Remove the Last Added Migration
+dotnet ef migrations remove --project Domain --startup-project API --context ApplicationDbContext
