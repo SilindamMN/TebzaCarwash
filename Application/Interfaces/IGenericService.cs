@@ -36,8 +36,9 @@
     /// <summary>
     /// Asynchronously updates an existing entity with the provided DTO.
     /// </summary>
+    /// <param name="id">The identifier of the entity to update.</param>
     /// <param name="entityDto">The data transfer object containing the updated information for the entity.</param>
-    Task<GeneralServiceResponseDto> UpdateAsync(TDto entityDto);
+    Task<GeneralServiceResponseDto> UpdateAsync(int id, TDto entityDto);
 
     /// <summary>
     /// Asynchronously deletes an entity by its ID.

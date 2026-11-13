@@ -4,6 +4,7 @@
   using AutoMapper;
   using Domain;
   using Domain.Dtos.General;
+  using Domain.Entities.Supporting;
   using Microsoft.EntityFrameworkCore;
 
     /// <summary>
@@ -12,7 +13,7 @@
     /// <typeparam name="TEntity">The entity type managed by the service.</typeparam>
     /// <typeparam name="TDto">The data transfer object type used to represent entities.</typeparam>
   public class GenericService<TEntity, TDto> : IGenericService<TEntity, TDto>
-        where TEntity : class
+        where TEntity : BaseEntity<int>
         where TDto : class
   {
     private readonly ApplicationDbContext dataContext;
@@ -35,19 +36,12 @@
         /// <returns>A response indicating whether creation succeeded, with a status code and message.</returns>
     public async Task<GeneralServiceResponseDto> CreateAsync(TDto entityDto)
     {
-      try
-      {
-        var newEntity = this.mapper.Map<TEntity>(entityDto);
-        this.dataContext.Set<TEntity>().Add(newEntity);
-        await this.SaveAsync();
+      var newEntity = this.mapper.Map<TEntity>(entityDto);
+      newEntity.Id = 0;
+      this.dataContext.Set<TEntity>().Add(newEntity);
+      await this.dataContext.SaveChangesAsync();
 
-        var createdDto = this.mapper.Map<TDto>(newEntity);
-        return GeneralServiceResponseDto.CreateResponse(true, 200, "Created Successfully");
-      }
-      catch (Exception ex)
-      {
-        return GeneralServiceResponseDto.CreateResponse(false, 400, $"Failed to create entity: {ex.Message}");
-      }
+      return GeneralServiceResponseDto.CreateResponse(true, 201, "Created successfully", newEntity.Id);
     }
 
         /// <summary>
@@ -56,19 +50,11 @@
         /// <returns>The mapped DTOs, or an empty collection if no active entities are found or an error occurs.</returns>
     public async Task<IEnumerable<TDto>> GetAllAsync()
     {
-      try
-      {
-        var entities = await this.dataContext.Set<TEntity>()
-            .Where(e => EF.Property<bool>(e, "IsActive"))
-            .ToListAsync();
+      var entities = await this.dataContext.Set<TEntity>()
+          .Where(entity => entity.IsActive && !entity.IsDeleted)
+          .ToListAsync();
 
-        var dtos = this.mapper.Map<List<TDto>>(entities);
-        return dtos;
-      }
-      catch (Exception ex)
-      {
-        return Enumerable.Empty<TDto>();
-      }
+      return this.mapper.Map<List<TDto>>(entities);
     }
         /// <summary>
         /// Retrieves the DTO with the specified identifier.
@@ -77,20 +63,10 @@
         /// <returns>The mapped DTO, or <c>null</c> if the entity is not found or an error occurs.</returns>
     public async Task<TDto?> GetByIdAsync(int id)
     {
-      try
-      {
-        var entity = await this.dataContext.Set<TEntity>().FindAsync(id);
-        if (entity == null)
-        {
-          return null;
-        }
+      var entity = await this.dataContext.Set<TEntity>()
+          .FirstOrDefaultAsync(item => item.Id == id && item.IsActive && !item.IsDeleted);
 
-        return this.mapper.Map<TDto>(entity);
-      }
-      catch (Exception ex)
-      {
-        return null;
-      }
+      return entity == null ? null : this.mapper.Map<TDto>(entity);
     }
 /// <summary>
 /// Updates an existing entity using the values in the supplied DTO.
@@ -98,26 +74,21 @@
 /// <param name="entityDto">The DTO containing the values to apply to the existing entity.</param>
 /// <returns>A response indicating whether the update succeeded. The response includes a 404 status if the entity is not found, a
 /// 200 status if the update succeeds, or a 400 status if an exception occurs.</returns>
-    public async Task<GeneralServiceResponseDto> UpdateAsync(TDto entityDto)
+    public async Task<GeneralServiceResponseDto> UpdateAsync(int id, TDto entityDto)
     {
-      try
+      var existingEntity = await this.dataContext.Set<TEntity>()
+          .FirstOrDefaultAsync(entity => entity.Id == id && entity.IsActive && !entity.IsDeleted);
+      if (existingEntity == null)
       {
-        var existingEntity = await this.dataContext.Set<TEntity>().FindAsync((int)typeof(TEntity).GetProperty("Id")?.GetValue(entityDto));
-        if (existingEntity == null)
-        {
-          return GeneralServiceResponseDto.CreateResponse(false, 404, "Entity not found");
-        }
-
-        this.mapper.Map(entityDto, existingEntity);
-        this.dataContext.Set<TEntity>().Update(existingEntity);
-        await this.SaveAsync();
-
-        return GeneralServiceResponseDto.CreateResponse(true, 200, "Updated successfully");
+        return GeneralServiceResponseDto.CreateResponse(false, 404, "Entity not found");
       }
-      catch (Exception ex)
-      {
-        return GeneralServiceResponseDto.CreateResponse(false, 400, $"Failed to update entity: {ex.Message}");
-      }
+
+      this.mapper.Map(entityDto, existingEntity);
+      existingEntity.Id = id;
+      existingEntity.UpdatedAt = DateTime.UtcNow;
+      await this.dataContext.SaveChangesAsync();
+
+      return GeneralServiceResponseDto.CreateResponse(true, 200, "Updated successfully");
     }
         /// <summary>
         /// Deletes the entity with the specified identifier.
@@ -127,38 +98,19 @@
         /// found, a 200 status if deletion succeeds, or a 400 status if deletion fails.</returns>
     public async Task<GeneralServiceResponseDto> DeleteAsync(int id)
     {
-      try
+      var entity = await this.dataContext.Set<TEntity>()
+          .FirstOrDefaultAsync(item => item.Id == id && item.IsActive && !item.IsDeleted);
+      if (entity == null)
       {
-        var entity = await this.dataContext.Set<TEntity>().FindAsync(id);
-        if (entity == null)
-        {
-          return GeneralServiceResponseDto.CreateResponse(false, 404, "Entity not found");
-        }
+        return GeneralServiceResponseDto.CreateResponse(false, 404, "Entity not found");
+      }
 
-        this.dataContext.Set<TEntity>().Remove(entity);
-        await this.SaveAsync();
+      entity.IsActive = false;
+      entity.IsDeleted = true;
+      entity.UpdatedAt = DateTime.UtcNow;
+      await this.dataContext.SaveChangesAsync();
 
-        return GeneralServiceResponseDto.CreateResponse(true, 200, "Deleted successfully");
-      }
-      catch (Exception ex)
-      {
-        return GeneralServiceResponseDto.CreateResponse(false, 400, $"Failed to delete entity: {ex.Message}");
-      }
-    }
-        /// <summary>
-        /// Saves pending changes to the data store.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous save operation.</returns>
-    private async Task SaveAsync()
-    {
-      try
-      {
-        await this.dataContext.SaveChangesAsync();
-      }
-      catch (Exception ex)
-      {
-        GeneralServiceResponseDto.CreateResponse(false, 400, ex.Message);
-      }
+      return GeneralServiceResponseDto.CreateResponse(true, 200, "Deleted successfully");
     }
   }
 }
