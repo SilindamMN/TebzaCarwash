@@ -20,13 +20,7 @@ namespace API.Controllers
       _authService = authService;
     }
 
-    [HttpPost]
-    [Route("seed-roles")]
-    public async Task<IActionResult> SeedRoles()
-    {
-      var seedResult = await _authService.SeedRolesAsync();
-      return StatusCode(seedResult.StatusCode, seedResult.Message);
-    }
+  
         /// <summary>
         /// Registers a user account.
         /// </summary>
