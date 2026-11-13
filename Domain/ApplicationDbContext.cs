@@ -2,6 +2,7 @@
 {
     using Domain.Entities;
     using Domain.Entities.Supporting;
+    using global::Entities.Supporting.Seeding;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
@@ -22,9 +23,6 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Seed Initial Data
-            //Seeding.Seed(modelBuilder);
-
             base.OnModelCreating(modelBuilder);
 
             // Customer -> User
