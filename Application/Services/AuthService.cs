@@ -142,9 +142,8 @@
                 };
             }
 
-            if (updateRoleDto.NewRole != RoleType.USER &&
-                updateRoleDto.NewRole != RoleType.WASHER &&
-                updateRoleDto.NewRole != RoleType.CUSTOMER)
+           if (!Enum.IsDefined(typeof(RoleType), updateRoleDto.NewRole)
+)
             {
                 return new GeneralServiceResponseDto()
                 {
