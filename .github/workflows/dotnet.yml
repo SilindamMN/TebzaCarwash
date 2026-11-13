@@ -1,0 +1,26 @@
+
+name: .NET CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build .NET Solution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore TebzaCarwash/TebzaCarwash.sln
+
+      - name: Build solution
+        run: dotnet build TebzaCarwash/TebzaCarwash.sln --no-restore --configuration Release
