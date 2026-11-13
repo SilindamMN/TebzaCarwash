@@ -16,6 +16,6 @@
     CUSTOMER,
     WASHER,
     USER,
-    RUNNER
+    CASHIER
   }
 }

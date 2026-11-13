@@ -9,5 +9,7 @@
         public const string CUSTOMER = "CUSTOMER";
         public const string WASHER = "WASHER";
         public const string USER = "USER";
+        public const string CASHIER
+ = "    CASHIER";
     }
 }
