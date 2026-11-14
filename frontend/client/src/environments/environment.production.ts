@@ -1,3 +1,3 @@
 export const environment = {
-  apiBaseUrl: '',
+  apiBaseUrl: 'https://tebzacarwash.runasp.net/api',
 };
