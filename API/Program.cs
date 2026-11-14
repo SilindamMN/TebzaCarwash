@@ -31,12 +31,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddHostedService<BookingStatusUpdater>();
 
-var mapperConfig = new MapperConfiguration(cfg =>
-{
-  cfg.AddProfile<MappingProfile>();
-});
-IMapper mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // Add Identity
 builder.Services
@@ -118,11 +113,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors(options =>
 {
@@ -131,8 +123,6 @@ app.UseCors(options =>
   .AllowAnyMethod()
   .AllowAnyOrigin();
 });
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

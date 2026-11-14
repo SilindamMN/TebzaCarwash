@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { requireApiBaseUrl } from './api-config';
 
 export interface CustomerRecord {
   id: number;
@@ -91,8 +92,6 @@ export type ManagementPayload =
 
 @Injectable({ providedIn: 'root' })
 export class ManagementService {
-  private readonly apiUrl = 'http://localhost:5163/api';
-
   constructor(private readonly http: HttpClient) {}
 
   loadAll(accessToken: string | null): Promise<ManagementData> {
@@ -142,5 +141,9 @@ export class ManagementService {
     return {
       headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }),
     };
+  }
+
+  private get apiUrl(): string {
+    return requireApiBaseUrl();
   }
 }

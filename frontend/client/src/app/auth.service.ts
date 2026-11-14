@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { apiNotConfiguredMessage, requireApiBaseUrl } from './api-config';
 
 interface RegisterRequest {
   firstName: string;
@@ -25,7 +26,6 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly authUrl = 'http://localhost:5163/api/auth';
   readonly currentUser = signal<AuthUser | null>(null);
   private token: string | null = null;
 
@@ -55,6 +55,10 @@ export class AuthService {
   }
 
   getErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message === apiNotConfiguredMessage) {
+      return apiNotConfiguredMessage;
+    }
+
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) {
         return 'Unable to reach the server. Check your connection and try again.';
@@ -71,5 +75,9 @@ export class AuthService {
     }
 
     return 'Something went wrong. Please try again.';
+  }
+
+  private get authUrl(): string {
+    return `${requireApiBaseUrl()}/auth`;
   }
 }
