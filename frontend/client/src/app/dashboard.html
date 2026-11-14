@@ -1,0 +1,349 @@
+<div class="dashboard-shell" [class.sidebar-open]="menuOpen">
+  <aside class="dashboard-sidebar">
+    <a class="dashboard-brand" href="/" aria-label="Tebza Carwash">
+      <span class="dashboard-brand-mark" aria-hidden="true">T</span>
+      <span>Tebza<span>Carwash</span></span>
+    </a>
+
+    <div class="sidebar-caption">WORKSPACE</div>
+    <nav class="dashboard-nav" aria-label="Main menu">
+      @for (item of navItems; track item.id) {
+        <button
+          type="button"
+          [class.active]="activeSection === item.id"
+          [attr.aria-current]="activeSection === item.id ? 'page' : null"
+          (click)="selectSection(item.id)"
+        >
+          <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+          @if (item.id !== 'overview' && data()) {
+            <span class="nav-count">{{ countFor(item.id) }}</span>
+          }
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-help">
+      <span class="help-icon" aria-hidden="true">?</span>
+      <div>
+        <strong>Need a hand?</strong>
+        <span>Your workspace is ready.</span>
+      </div>
+    </div>
+    <div class="sidebar-profile">
+      <span class="profile-avatar">{{ auth.currentUser()?.firstName?.charAt(0) || 'T' }}</span>
+      <span class="profile-copy">
+        <strong>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</strong>
+        <span>{{ auth.currentUser()?.userName }}</span>
+      </span>
+      <button class="sign-out-button" type="button" aria-label="Sign out" (click)="signOut()">↗</button>
+    </div>
+  </aside>
+
+  <div class="dashboard-main">
+    <header class="dashboard-header">
+      <button class="mobile-menu-button" type="button" aria-label="Open menu" (click)="menuOpen = !menuOpen">☰</button>
+      <div class="page-heading">
+        <span class="breadcrumb">MANAGEMENT / {{ sectionTitle | uppercase }}</span>
+        <h1>{{ activeSection === 'overview' ? 'Good to see you, ' + (auth.currentUser()?.firstName || 'there') : sectionTitle }}</h1>
+      </div>
+      <div class="header-actions">
+        @if (activeSection !== 'overview') {
+          <label class="dashboard-search">
+            <span aria-hidden="true">⌕</span>
+            <input [(ngModel)]="searchTerm" [placeholder]="'Search ' + sectionTitle.toLowerCase() + '...'" aria-label="Search current section" />
+          </label>
+        }
+        <button class="refresh-button" type="button" (click)="refresh()" [disabled]="isLoading()" aria-label="Refresh dashboard">
+          <span [class.refreshing]="isLoading()" aria-hidden="true">↻</span>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      @if (isLoading() && !data()) {
+        <div class="dashboard-message">
+          <span class="dashboard-spinner" aria-hidden="true"></span>
+          <strong>Loading your workspace</strong>
+          <span>Fetching the latest car wash operations.</span>
+        </div>
+      } @else if (error() && !data()) {
+        <div class="dashboard-message error-message">
+          <span class="message-mark" aria-hidden="true">!</span>
+          <strong>We couldn't load your workspace</strong>
+          <span>{{ error() }}</span>
+          <button class="primary-action" type="button" (click)="refresh()" [disabled]="isLoading()">Try again</button>
+        </div>
+      } @else if (data(); as workspace) {
+        @if (error()) {
+          <div class="inline-error" role="status">{{ error() }} <button type="button" (click)="refresh()">Retry</button></div>
+        }
+
+        @if (activeSection === 'overview') {
+          <section class="welcome-banner">
+            <div>
+              <span class="banner-kicker">SHIFT REPORT / TEBZA WASH DESK</span>
+                <h2>Every wash, accounted for.</h2>
+                <p>People, cars and bookings on the move.</p>
+            </div>
+            <div class="banner-art" aria-hidden="true">
+              <span class="banner-sun"></span>
+                <svg class="banner-car" viewBox="0 0 180 82" fill="none">
+                  <path d="M20 53h140l-8-23a12 12 0 0 0-11-8H47a13 13 0 0 0-12 8L20 53Z" />
+                  <path d="M11 53h158v17H11zM34 70v5m112-5v5M48 38h84" />
+                  <circle cx="47" cy="68" r="9" />
+                  <circle cx="133" cy="68" r="9" />
+                  <path class="car-accent" d="m27 51 9-19" />
+                </svg>
+              <span class="banner-road"></span>
+            </div>
+          </section>
+
+          <section class="stats-grid" aria-label="Business summary">
+            <article class="stat-card">
+              <span class="stat-icon icon-green">○</span>
+              <span class="stat-label">Total customers</span>
+              <strong>{{ workspace.customers.length }}</strong>
+              <span class="stat-footnote">Registered customer profiles</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon icon-amber">▦</span>
+              <span class="stat-label">Open bookings</span>
+              <strong>{{ activeBookings }}</strong>
+              <span class="stat-footnote">Requested or confirmed</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon icon-blue">≋</span>
+              <span class="stat-label">Active washes</span>
+              <strong>{{ activeWashes }}</strong>
+              <span class="stat-footnote">Pending or in progress</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon icon-purple">$</span>
+              <span class="stat-label">Collected revenue</span>
+              <strong>{{ collectedRevenue | currency:'ZAR':'symbol-narrow':'1.0-2' }}</strong>
+              <span class="stat-footnote">From paid washes</span>
+            </article>
+          </section>
+
+          <section class="overview-grid">
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <span class="panel-kicker">ON THE SCHEDULE</span>
+                  <h2>Bookings</h2>
+                </div>
+                <button class="text-action" type="button" (click)="selectSection('bookings')">View all <span aria-hidden="true">→</span></button>
+              </div>
+              @if (upcomingBookings.length) {
+                <div class="schedule-list">
+                  @for (booking of upcomingBookings; track booking.id) {
+                    <div class="schedule-row">
+                      <span class="schedule-date">
+                        <strong>{{ booking.scheduledAt | date:'dd' }}</strong>
+                        <span>{{ booking.scheduledAt | date:'MMM' }}</span>
+                      </span>
+                      <span class="schedule-copy">
+                        <strong>{{ customerName(booking.customerId) }}</strong>
+                        <span>{{ vehicleName(booking.vehicleId) }} · {{ serviceName(booking.serviceId) }}</span>
+                      </span>
+                      <span class="status-pill" [class]="'status-pill status-' + statusClass(booking.status)">{{ booking.status }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-state compact-empty">No bookings yet. New bookings will show up here.</div>
+              }
+            </article>
+
+            <article class="panel-card operations-card">
+              <div class="panel-heading">
+                <div>
+                  <span class="panel-kicker">LIVE OPERATIONS</span>
+                  <h2>At a glance</h2>
+                </div>
+              </div>
+              <div class="operation-line">
+                <span class="operation-symbol symbol-washer">◇</span>
+                <span><strong>Wash team</strong><small>Available washers</small></span>
+                <b>{{ workspace.washers.filter(isAvailable).length }}<small> / {{ workspace.washers.length }}</small></b>
+              </div>
+              <div class="operation-line">
+                <span class="operation-symbol symbol-vehicle">⌁</span>
+                <span><strong>Vehicle fleet</strong><small>Vehicles on file</small></span>
+                <b>{{ workspace.vehicles.length }}</b>
+              </div>
+              <div class="operation-line">
+                <span class="operation-symbol symbol-service">✳</span>
+                <span><strong>Wash menu</strong><small>Services available</small></span>
+                <b>{{ workspace.services.length }}</b>
+              </div>
+              <div class="operation-line">
+                <span class="operation-symbol symbol-wash">≋</span>
+                <span><strong>Completed washes</strong><small>All-time completed</small></span>
+                <b>{{ workspace.washes.filter(isCompleted).length }}</b>
+              </div>
+            </article>
+          </section>
+
+          <article class="panel-card recent-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-kicker">RECENT ACTIVITY</span>
+                <h2>Latest washes</h2>
+              </div>
+              <button class="text-action" type="button" (click)="selectSection('washes')">View all <span aria-hidden="true">→</span></button>
+            </div>
+            @if (recentWashes.length) {
+              <div class="recent-wash-grid">
+                @for (wash of recentWashes; track wash.id) {
+                  <div class="recent-wash">
+                    <span class="recent-wash-icon">≋</span>
+                    <span><strong>{{ vehicleName(wash.vehicleId) }}</strong><small>{{ serviceName(wash.serviceId) }} · {{ wash.startedAt | date:'h:mm a, d MMM' }}</small></span>
+                    <span class="status-pill" [class]="'status-pill status-' + statusClass(wash.status)">{{ wash.status }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state compact-empty">No washes have been recorded yet.</div>
+            }
+          </article>
+        } @else {
+          <section class="section-intro">
+            <div>
+              <span class="panel-kicker">WORKSPACE DIRECTORY</span>
+              <h2>{{ sectionTitle }}</h2>
+              <p>Browse and search the {{ sectionTitle.toLowerCase() }} recorded in your car wash system.</p>
+            </div>
+            <span class="record-total">{{ countFor(activeSection) }} <small>total</small></span>
+          </section>
+
+          <section class="panel-card data-panel">
+            <div class="data-panel-heading">
+              <strong>{{ sectionTitle }} directory</strong>
+              <span>{{ countFor(activeSection) }} records</span>
+            </div>
+            <div class="table-wrap">
+              @switch (activeSection) {
+                @case ('customers') {
+                  <table>
+                    <thead><tr><th>Customer</th><th>Account ID</th><th>Vehicles</th><th>Bookings</th><th>Washes</th></tr></thead>
+                    <tbody>
+                      @for (customer of customers; track customer.id) {
+                        <tr>
+                          <td><span class="record-primary">{{ customerName(customer.id) }}</span><small class="record-secondary">Customer profile</small></td>
+                          <td>#{{ customer.userId }}</td>
+                          <td>{{ vehicleCountFor(customer.id) }}</td>
+                          <td>{{ bookingCountFor(customer.id) }}</td>
+                          <td>{{ customerWashCountFor(customer.id) }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="5">No matching customers found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                @case ('washers') {
+                  <table>
+                    <thead><tr><th>Washer</th><th>Account ID</th><th>Availability</th><th>Washes assigned</th><th>Since</th></tr></thead>
+                    <tbody>
+                      @for (washer of washers; track washer.id) {
+                        <tr>
+                          <td><span class="record-primary">{{ washerName(washer.id) }}</span><small class="record-secondary">Washer #{{ washer.id }}</small></td>
+                          <td>#{{ washer.userId }}</td>
+                          <td><span class="status-pill" [class]="washer.isAvailable ? 'status-pill status-available' : 'status-pill status-busy'">{{ washer.isAvailable ? 'Available' : 'Unavailable' }}</span></td>
+                          <td>{{ washCountFor(washer.id) }}</td>
+                          <td>{{ washer.hiredOn | date:'d MMM y' }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="5">No matching washers found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                @case ('bookings') {
+                  <table>
+                    <thead><tr><th>Booking</th><th>Customer</th><th>Vehicle & service</th><th>Washer</th><th>Scheduled</th><th>Status</th></tr></thead>
+                    <tbody>
+                      @for (booking of bookings; track booking.id) {
+                        <tr>
+                          <td><span class="record-primary">#{{ booking.id }}</span></td>
+                          <td>{{ customerName(booking.customerId) }}</td>
+                          <td><span class="record-primary">{{ vehicleName(booking.vehicleId) }}</span><small class="record-secondary">{{ serviceName(booking.serviceId) }}</small></td>
+                          <td>{{ washerName(booking.washerId) }}</td>
+                          <td>{{ booking.scheduledAt | date:'d MMM y, h:mm a' }}</td>
+                          <td><span class="status-pill" [class]="'status-pill status-' + statusClass(booking.status)">{{ booking.status }}</span></td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="6">No matching bookings found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                @case ('vehicles') {
+                  <table>
+                    <thead><tr><th>Vehicle</th><th>Registration</th><th>Customer</th><th>Type</th><th>Colour</th></tr></thead>
+                    <tbody>
+                      @for (vehicle of vehicles; track vehicle.id) {
+                        <tr>
+                          <td><span class="record-primary">{{ vehicle.make || vehicle.type }} {{ vehicle.model }}</span><small class="record-secondary">Vehicle #{{ vehicle.id }}</small></td>
+                          <td><span class="registration-chip">{{ vehicle.registration }}</span></td>
+                          <td>{{ customerName(vehicle.customerId) }}</td>
+                          <td>{{ vehicle.type }}</td>
+                          <td>{{ vehicle.colour || '—' }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="5">No matching vehicles found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                @case ('services') {
+                  <table>
+                    <thead><tr><th>Service</th><th>Description</th><th>Price</th><th>Duration</th><th>Bookings</th></tr></thead>
+                    <tbody>
+                      @for (service of services; track service.id) {
+                        <tr>
+                          <td><span class="record-primary">{{ service.name }}</span><small class="record-secondary">Service #{{ service.id }}</small></td>
+                          <td class="description-cell">{{ service.description || 'No description' }}</td>
+                          <td class="money-cell">{{ service.price | currency:'ZAR':'symbol-narrow':'1.2-2' }}</td>
+                          <td>{{ service.durationMinutes }} min</td>
+                          <td>{{ serviceBookingCount(service.id) }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="5">No matching services found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                @case ('washes') {
+                  <table>
+                    <thead><tr><th>Wash</th><th>Customer & vehicle</th><th>Service</th><th>Washer</th><th>Payment</th><th>Price</th><th>Status</th></tr></thead>
+                    <tbody>
+                      @for (wash of washes; track wash.id) {
+                        <tr>
+                          <td><span class="record-primary">#{{ wash.id }}</span><small class="record-secondary">{{ wash.startedAt | date:'d MMM y' }}</small></td>
+                          <td><span class="record-primary">{{ customerName(wash.customerId) }}</span><small class="record-secondary">{{ vehicleName(wash.vehicleId) }}</small></td>
+                          <td>{{ serviceName(wash.serviceId) }}</td>
+                          <td>{{ washerName(wash.washerId) }}</td>
+                          <td><span class="payment-state" [class.payment-paid]="wash.isPaid">{{ wash.isPaid ? 'Paid' : 'Unpaid' }}</span></td>
+                          <td class="money-cell">{{ wash.price | currency:'ZAR':'symbol-narrow':'1.2-2' }}</td>
+                          <td><span class="status-pill" [class]="'status-pill status-' + statusClass(wash.status)">{{ wash.status }}</span></td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="empty-state" colspan="7">No matching washes found.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              }
+            </div>
+          </section>
+          <p class="table-footnote">This view is read-only. Records are provided by the Tebza Carwash API.</p>
+        }
+      }
+    </main>
+  </div>
+</div>

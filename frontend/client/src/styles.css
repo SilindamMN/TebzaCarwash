@@ -1,1 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+@import './app/app.css';
+@import './app/dashboard.css';
+
+:root {
+  --wash-ink: #101820;
+  --wash-blue: #1757e8;
+  --wash-blue-dark: #0c2e69;
+  --wash-red: #ed4c43;
+  --wash-green: #249365;
+  --wash-paper: #f3f6f9;
+  --wash-line: #dce4ec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
