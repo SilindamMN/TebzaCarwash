@@ -11,5 +11,9 @@ namespace Domain.Dtos.Washers
     public bool IsAvailable { get; set; } = true;
 
     public DateTime HiredOn { get; set; } = DateTime.UtcNow;
+
+    public string FirstName { get; set; } = string.Empty;
+
+    public string LastName { get; set; } = string.Empty;
   }
 }
