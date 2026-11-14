@@ -1,0 +1,23 @@
+# .NET build files
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# JetBrains Rider
+.idea/
+
+# Logs
+*.log
+
+# Test results
+[Tt]estResults/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+secrets.json
