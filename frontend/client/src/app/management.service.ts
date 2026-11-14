@@ -60,7 +60,17 @@ export interface WashRecord {
   completedAt: string | null;
 }
 
+export interface UserRecord {
+  id: number;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  email: string;
+  roles: string[];
+}
+
 export interface ManagementData {
+  users: UserRecord[];
   customers: CustomerRecord[];
   washers: WasherRecord[];
   bookings: BookingRecord[];
@@ -69,6 +79,16 @@ export interface ManagementData {
   washes: WashRecord[];
 }
 
+export type ManagementSection = keyof Omit<ManagementData, 'users'>;
+
+export type ManagementPayload =
+  | Pick<CustomerRecord, 'userId'>
+  | Pick<WasherRecord, 'userId' | 'isAvailable' | 'hiredOn'>
+  | Omit<BookingRecord, 'id'>
+  | Omit<VehicleRecord, 'id'>
+  | Omit<ServiceRecord, 'id'>
+  | Omit<WashRecord, 'id'>;
+
 @Injectable({ providedIn: 'root' })
 export class ManagementService {
   private readonly apiUrl = 'http://localhost:5163/api';
@@ -76,22 +96,18 @@ export class ManagementService {
   constructor(private readonly http: HttpClient) {}
 
   loadAll(accessToken: string | null): Promise<ManagementData> {
-    if (!accessToken) {
-      throw new Error('You must sign in before loading management data.');
-    }
-
-    const options = {
-      headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }),
-    };
+    const options = this.requestOptions(accessToken);
 
     return Promise.all([
+      firstValueFrom(this.http.get<UserRecord[]>(`${this.apiUrl}/auth/users`, options)),
       firstValueFrom(this.http.get<CustomerRecord[]>(`${this.apiUrl}/customers`, options)),
       firstValueFrom(this.http.get<WasherRecord[]>(`${this.apiUrl}/washers`, options)),
       firstValueFrom(this.http.get<BookingRecord[]>(`${this.apiUrl}/bookings`, options)),
       firstValueFrom(this.http.get<VehicleRecord[]>(`${this.apiUrl}/vehicles`, options)),
       firstValueFrom(this.http.get<ServiceRecord[]>(`${this.apiUrl}/services`, options)),
       firstValueFrom(this.http.get<WashRecord[]>(`${this.apiUrl}/washes`, options)),
-    ]).then(([customers, washers, bookings, vehicles, services, washes]) => ({
+    ]).then(([users, customers, washers, bookings, vehicles, services, washes]) => ({
+        users,
         customers,
         washers,
         bookings,
@@ -99,5 +115,32 @@ export class ManagementService {
         services,
         washes,
     }));
+  }
+
+  async saveRecord(
+    accessToken: string | null,
+    section: ManagementSection,
+    id: number | null,
+    payload: ManagementPayload,
+  ): Promise<void> {
+    const options = this.requestOptions(accessToken);
+    const url = `${this.apiUrl}/${section}`;
+
+    if (id === null) {
+      await firstValueFrom(this.http.post<unknown>(url, payload, options));
+      return;
+    }
+
+    await firstValueFrom(this.http.put<unknown>(`${url}/${id}`, { id, ...payload }, options));
+  }
+
+  private requestOptions(accessToken: string | null): { headers: HttpHeaders } {
+    if (!accessToken) {
+      throw new Error('You must sign in before managing records.');
+    }
+
+    return {
+      headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }),
+    };
   }
 }

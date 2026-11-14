@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Services;
+using API.Services;
 using AutoMapper;
 using Domain;
 using Domain.Entities.Supporting;
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+builder.Services.AddHostedService<BookingStatusUpdater>();
 
 var mapperConfig = new MapperConfiguration(cfg =>
 {
