@@ -25,7 +25,7 @@
             var db = services.GetRequiredService<ApplicationDbContext>();
 
             // Roles
-            string[] roles = { StaticUserRoles.ADMIN, StaticUserRoles.CUSTOMER, StaticUserRoles.WASHER };
+            string[] roles = { StaticUserRoles.ADMIN, StaticUserRoles.CUSTOMER, StaticUserRoles.WASHER, StaticUserRoles.USER };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
