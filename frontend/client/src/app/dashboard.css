@@ -1685,3 +1685,262 @@
     padding: 14px;
   }
 }
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.add-record-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 9px 13px;
+}
+
+.add-record-button > span {
+  font-size: 17px;
+  line-height: 10px;
+}
+
+.row-action,
+.secondary-action {
+  padding: 6px 10px;
+  border: 1px solid #ccd7e4;
+  border-radius: 3px;
+  background: #fff;
+  color: #28415f;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.row-action:hover,
+.secondary-action:hover:not(:disabled) {
+  border-color: var(--wash-blue);
+  color: var(--wash-blue);
+}
+
+.record-modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  padding: 24px;
+  background: rgb(16 24 32 / 58%);
+  place-items: center;
+}
+
+.record-modal {
+  display: flex;
+  width: min(100%, 640px);
+  max-height: calc(100vh - 48px);
+  flex-direction: column;
+  border: 1px solid #dce4ec;
+  border-top: 3px solid var(--wash-blue);
+  background: #fff;
+  box-shadow: 4px 4px 0 rgb(16 24 32 / 16%);
+}
+
+.record-modal-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 22px 26px 17px;
+  border-bottom: 1px solid #e6ebf0;
+}
+
+.record-modal-header .panel-kicker {
+  color: var(--wash-blue);
+}
+
+.record-modal-header h2 {
+  margin: 6px 0 0;
+  color: var(--wash-ink);
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #dce4ec;
+  border-radius: 3px;
+  background: #fff;
+  color: #526174;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.record-form {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.record-form-fields {
+  display: grid;
+  overflow-y: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+  padding: 20px 26px 8px;
+}
+
+.record-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 15px;
+  color: #273342;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.record-field > input,
+.record-field > select,
+.record-field > textarea {
+  width: 100%;
+  min-height: 39px;
+  padding: 8px 10px;
+  border: 1px solid #d4deea;
+  border-radius: 3px;
+  outline: none;
+  background: #fbfcfe;
+  color: var(--wash-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.record-field > textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.record-field > input:focus,
+.record-field > select:focus,
+.record-field > textarea:focus {
+  border-color: var(--wash-blue);
+  box-shadow: 0 0 0 2px rgb(23 87 232 / 12%);
+}
+
+.record-field > small {
+  color: #748197;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.record-field > .booking-schedule-error {
+  color: #a9352d;
+}
+
+.record-field-wide,
+.record-field-grid,
+.record-checkbox {
+  grid-column: 1 / -1;
+}
+
+.record-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.record-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 2px 0 15px;
+  color: #273342;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.record-checkbox input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--wash-blue);
+}
+
+.record-form-error {
+  margin: 0 26px 14px;
+  padding: 10px 12px;
+  border: 1px solid #f1cbc8;
+  background: #fff3f2;
+  color: #a9352d;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.record-form-actions {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  gap: 9px;
+  padding: 14px 26px 20px;
+  border-top: 1px solid #e6ebf0;
+}
+
+.record-form-actions .primary-action {
+  margin: 0;
+}
+
+.record-form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 760px) {
+  .section-actions {
+    gap: 10px;
+  }
+
+  .add-record-button {
+    padding: 8px 10px;
+  }
+
+  .record-modal-backdrop {
+    padding: 12px;
+    place-items: start center;
+  }
+
+  .record-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .record-modal-header,
+  .record-form-fields,
+  .record-form-actions {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .record-form-error {
+    margin-right: 18px;
+    margin-left: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-actions {
+    align-items: flex-end;
+    flex-direction: column-reverse;
+  }
+
+  .record-form-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .record-field-grid {
+    grid-column: auto;
+  }
+}
