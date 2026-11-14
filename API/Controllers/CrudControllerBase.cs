@@ -3,6 +3,7 @@ namespace API.Controllers
   using Application.Interfaces;
   using Domain.Dtos.General;
   using Domain.Entities.Supporting;
+  using Microsoft.AspNetCore.Authorization;
   using Microsoft.AspNetCore.Mvc;
 
   public abstract class CrudControllerBase<TEntity, TDto> : ControllerBase

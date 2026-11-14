@@ -3,6 +3,7 @@
   using Application.Interfaces;
   using AutoMapper;
   using Domain;
+  using Domain.Entities;
   using Domain.Dtos.General;
   using Domain.Entities.Supporting;
   using Microsoft.EntityFrameworkCore;
@@ -50,9 +51,14 @@
         /// <returns>The mapped DTOs, or an empty collection if no active entities are found or an error occurs.</returns>
     public async Task<IEnumerable<TDto>> GetAllAsync()
     {
-      var entities = await this.dataContext.Set<TEntity>()
-          .Where(entity => entity.IsActive && !entity.IsDeleted)
-          .ToListAsync();
+      var query = this.dataContext.Set<TEntity>()
+          .Where(entity => entity.IsActive && !entity.IsDeleted);
+      if (typeof(TEntity) == typeof(Customer) || typeof(TEntity) == typeof(Washer))
+      {
+        query = query.Include("User");
+      }
+
+      var entities = await query.ToListAsync();
 
       return this.mapper.Map<List<TDto>>(entities);
     }
