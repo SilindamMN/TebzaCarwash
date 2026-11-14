@@ -31,7 +31,7 @@ namespace API.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] TDto entityDto)
+    public virtual async Task<IActionResult> Create([FromBody] TDto entityDto)
     {
       var result = await this.genericService.CreateAsync(entityDto);
       if (!result.IsSucceed)
@@ -43,7 +43,7 @@ namespace API.Controllers
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] TDto entityDto)
+    public virtual async Task<IActionResult> Update(int id, [FromBody] TDto entityDto)
     {
       if (entityDto.Id != 0 && entityDto.Id != id)
       {
