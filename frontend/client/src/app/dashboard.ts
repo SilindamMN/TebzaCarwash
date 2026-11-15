@@ -17,6 +17,7 @@ import {
   WasherRecord,
   WashRecord,
 } from './management.service';
+import { VehicleCatalogService } from './vehicle-catalog.service';
 
 type DashboardSection =
   | 'overview'
@@ -53,12 +54,15 @@ interface VehicleForm {
   model: string;
   colour: string;
   type: string;
+  sizeTier: string;
 }
 
 interface ServiceForm {
   name: string;
   description: string;
   price: number;
+  smallPrice: number;
+  largePrice: number;
   durationMinutes: number;
 }
 
@@ -90,6 +94,11 @@ export class Dashboard {
   protected readonly recordFormOpen = signal(false);
   protected readonly isSavingRecord = signal(false);
   protected readonly recordFormError = signal('');
+  protected readonly vehicleMakes = signal<string[]>([]);
+  protected readonly vehicleModels = signal<string[]>([]);
+  protected readonly vehicleCatalogLoading = signal(false);
+  protected readonly vehicleModelsLoading = signal(false);
+  protected readonly vehicleCatalogError = signal('');
   protected editingRecordId: number | null = null;
   protected customerForm: CustomerForm = { userId: null };
   protected washerForm: WasherForm = { userId: null, isAvailable: true, hiredOn: this.today() };
@@ -108,8 +117,16 @@ export class Dashboard {
     model: '',
     colour: '',
     type: 'Sedan',
+    sizeTier: 'Medium',
   };
-  protected serviceForm: ServiceForm = { name: '', description: '', price: 0, durationMinutes: 30 };
+  protected serviceForm: ServiceForm = {
+    name: '',
+    description: '',
+    price: 0,
+    smallPrice: 0,
+    largePrice: 0,
+    durationMinutes: 30,
+  };
   protected washForm: WashForm = {
     bookingId: null,
     customerId: null,
@@ -123,6 +140,7 @@ export class Dashboard {
     completedAt: '',
   };
   protected readonly vehicleTypes = ['Hatchback', 'Sedan', 'SUV', 'Bakkie', 'Van', 'Motorcycle'];
+  protected readonly vehicleSizeTiers = ['Small', 'Medium', 'Large'];
   protected readonly bookingStatuses = ['Requested', 'Confirmed', 'Completed', 'Cancelled'];
   protected readonly washStatuses = ['Pending', 'InProgress', 'Completed', 'Cancelled'];
   protected readonly openingTime = '09:00';
@@ -145,6 +163,7 @@ export class Dashboard {
   constructor(
     protected readonly auth: AuthService,
     private readonly management: ManagementService,
+    private readonly vehicleCatalog: VehicleCatalogService,
     destroyRef: DestroyRef,
   ) {
     void this.refresh();
@@ -337,6 +356,10 @@ export class Dashboard {
     return wash.status.toLowerCase() === 'completed';
   }
 
+  protected isCompletedBooking(booking: BookingRecord): boolean {
+    return booking.status.toLowerCase() === 'completed';
+  }
+
   protected statusClass(status: string): string {
     return status.toLowerCase().replace(/[^a-z]+/g, '-');
   }
@@ -390,10 +413,18 @@ export class Dashboard {
           model: '',
           colour: '',
           type: 'Sedan',
+          sizeTier: 'Medium',
         };
         break;
       case 'services':
-        this.serviceForm = { name: '', description: '', price: 0, durationMinutes: 30 };
+        this.serviceForm = {
+          name: '',
+          description: '',
+          price: 0,
+          smallPrice: 0,
+          largePrice: 0,
+          durationMinutes: 30,
+        };
         break;
       case 'washes':
         this.washForm = {
@@ -411,6 +442,9 @@ export class Dashboard {
         break;
     }
     this.recordFormOpen.set(true);
+    if (this.activeSection === 'vehicles') {
+      void this.loadVehicleMakes();
+    }
   }
 
   protected editCustomer(record: CustomerRecord): void {
@@ -428,6 +462,10 @@ export class Dashboard {
   }
 
   protected editBooking(record: BookingRecord): void {
+    if (this.isCompletedBooking(record)) {
+      return;
+    }
+
     this.beginEdit(record.id);
     this.bookingForm = {
       customerId: record.customerId,
@@ -448,7 +486,10 @@ export class Dashboard {
       model: record.model ?? '',
       colour: record.colour ?? '',
       type: record.type,
+      sizeTier: record.sizeTier,
     };
+    void this.loadVehicleMakes(record.make ?? '');
+    void this.loadVehicleModels(record.make ?? '', record.model ?? '');
   }
 
   protected editService(record: ServiceRecord): void {
@@ -457,11 +498,17 @@ export class Dashboard {
       name: record.name,
       description: record.description ?? '',
       price: record.price,
+      smallPrice: record.smallPrice,
+      largePrice: record.largePrice,
       durationMinutes: record.durationMinutes,
     };
   }
 
   protected editWash(record: WashRecord): void {
+    if (this.isCompleted(record)) {
+      return;
+    }
+
     this.beginEdit(record.id);
     this.washForm = {
       bookingId: record.bookingId,
@@ -505,6 +552,110 @@ export class Dashboard {
     return (this.data()?.vehicles ?? []).filter((vehicle) => vehicle.customerId === customerId);
   }
 
+  protected vehicleSizeTier(vehicleId: number | null): string {
+    return this.data()?.vehicles.find((vehicle) => vehicle.id === vehicleId)?.sizeTier ?? 'Medium';
+  }
+
+  protected servicePrice(service: ServiceRecord, sizeTier: string): number {
+    if (sizeTier === 'Small') {
+      return service.smallPrice;
+    }
+    if (sizeTier === 'Large') {
+      return service.largePrice;
+    }
+    return service.price;
+  }
+
+  protected onVehicleTypeChange(type: string): void {
+    this.vehicleForm.type = type;
+    this.vehicleForm.sizeTier = this.defaultSizeTier(type);
+  }
+
+  protected onVehicleMakeChange(make: string): void {
+    this.vehicleForm.make = make;
+    this.vehicleForm.model = '';
+    this.vehicleModels.set([]);
+    if (make) {
+      void this.loadVehicleModels(make);
+    }
+  }
+
+  protected retryVehicleCatalog(): void {
+    this.vehicleCatalogError.set('');
+    if (this.vehicleForm.make) {
+      void this.loadVehicleModels(this.vehicleForm.make, this.vehicleForm.model);
+      return;
+    }
+
+    this.vehicleMakes.set([]);
+    void this.loadVehicleMakes();
+  }
+
+  protected normalizeRegistration(value: string): void {
+    this.vehicleForm.registration = value.toUpperCase().replace(/\s+/g, ' ').trim();
+  }
+
+  private defaultSizeTier(type: string): string {
+    switch (type) {
+      case 'Hatchback':
+      case 'Motorcycle':
+        return 'Small';
+      case 'SUV':
+      case 'Bakkie':
+      case 'Van':
+        return 'Large';
+      default:
+        return 'Medium';
+    }
+  }
+
+  private async loadVehicleMakes(currentMake = ''): Promise<void> {
+    if (this.vehicleMakes().length > 0) {
+      if (currentMake && !this.vehicleMakes().includes(currentMake)) {
+        this.vehicleMakes.update((makes) => [...makes, currentMake].sort());
+      }
+      return;
+    }
+
+    this.vehicleCatalogLoading.set(true);
+    this.vehicleCatalogError.set('');
+    try {
+      const makes = await this.vehicleCatalog.getMakes();
+      this.vehicleMakes.set(
+        currentMake && !makes.includes(currentMake) ? [...makes, currentMake].sort() : makes,
+      );
+    } catch {
+      this.vehicleCatalogError.set('Could not load vehicle makes. Check your connection and retry.');
+    } finally {
+      this.vehicleCatalogLoading.set(false);
+    }
+  }
+
+  private vehicleModelRequest = 0;
+
+  private async loadVehicleModels(make: string, currentModel = ''): Promise<void> {
+    const request = ++this.vehicleModelRequest;
+    this.vehicleModelsLoading.set(true);
+    this.vehicleCatalogError.set('');
+    try {
+      const models = await this.vehicleCatalog.getModels(make);
+      if (request === this.vehicleModelRequest) {
+        this.vehicleModels.set(
+          currentModel && !models.includes(currentModel) ? [...models, currentModel].sort() : models,
+        );
+      }
+    } catch {
+      if (request === this.vehicleModelRequest) {
+        this.vehicleModels.set(currentModel ? [currentModel] : []);
+        this.vehicleCatalogError.set('Could not load models for this make. Check your connection and retry.');
+      }
+    } finally {
+      if (request === this.vehicleModelRequest) {
+        this.vehicleModelsLoading.set(false);
+      }
+    }
+  }
+
   protected onBookingCustomerChange(customerId: number | null): void {
     const vehicles = this.vehiclesForCustomer(customerId);
     if (!vehicles.some((vehicle) => vehicle.id === this.bookingForm.vehicleId)) {
@@ -522,8 +673,11 @@ export class Dashboard {
   }
 
   protected get bookingMinDateTime(): string {
-    const date = this.bookingForm.scheduledAt.slice(0, 10);
-    return date ? `${date}T${this.openingTime}` : '';
+    const today = this.southAfricaDate(new Date());
+    const selectedDate = this.bookingForm.scheduledAt.slice(0, 10);
+    const date = selectedDate > today ? selectedDate : today;
+    const minimumTime = date === today ? this.latestOf(this.openingTime, this.southAfricaTime()) : this.openingTime;
+    return `${date}T${minimumTime}`;
   }
 
   protected get bookingMaxDateTime(): string {
@@ -549,7 +703,7 @@ export class Dashboard {
       return false;
     }
 
-    const startsAt = Date.parse(this.bookingForm.scheduledAt);
+    const startsAt = new Date(`${this.bookingForm.scheduledAt}:00+02:00`).getTime();
     const service = this.data()?.services.find((item) => item.id === this.bookingForm.serviceId);
     return Number.isFinite(startsAt) &&
       (service?.durationMinutes ?? 0) > 0 &&
@@ -561,9 +715,15 @@ export class Dashboard {
       return '';
     }
 
-    const startsAt = new Date(this.bookingForm.scheduledAt);
+    const startsAt = new Date(`${this.bookingForm.scheduledAt}:00+02:00`);
     if (Number.isNaN(startsAt.getTime())) {
       return 'Choose a valid booking date and time.';
+    }
+
+    const selectedDate = this.bookingForm.scheduledAt.slice(0, 10);
+    const today = this.southAfricaDate(new Date());
+    if (selectedDate < today || (selectedDate === today && startsAt.getTime() <= Date.now())) {
+      return 'Bookings must be scheduled for a future date and time.';
     }
 
     const service = this.data()?.services.find((item) => item.id === this.bookingForm.serviceId);
@@ -571,7 +731,9 @@ export class Dashboard {
       return '';
     }
 
-    const startMinutes = startsAt.getHours() * 60 + startsAt.getMinutes();
+    const time = this.bookingForm.scheduledAt.slice(11, 16);
+    const [hour, minute] = time.split(':').map(Number);
+    const startMinutes = hour * 60 + minute;
     const openingMinutes = 9 * 60;
     const closingMinutes = 21 * 60;
     if (startMinutes < openingMinutes) {
@@ -583,13 +745,33 @@ export class Dashboard {
     return '';
   }
 
+  protected get bookingVehicleDayError(): string {
+    if (!this.bookingForm.scheduledAt || this.bookingForm.vehicleId === null) {
+      return '';
+    }
+
+    const selectedDate = this.bookingForm.scheduledAt.slice(0, 10);
+    const duplicate = (this.data()?.bookings ?? []).some((booking) => {
+      if (
+        booking.vehicleId !== this.bookingForm.vehicleId ||
+        booking.id === this.editingRecordId ||
+        booking.status.toLowerCase() === 'cancelled'
+      ) {
+        return false;
+      }
+      return this.southAfricaDate(new Date(booking.scheduledAt)) === selectedDate;
+    });
+
+    return duplicate ? 'This vehicle already has a booking on that day.' : '';
+  }
+
   protected availableWashersForBooking(): WasherRecord[] {
     if (!this.canSelectBookingWasher) {
       return [];
     }
 
     const data = this.data();
-    const startsAt = Date.parse(this.bookingForm.scheduledAt);
+    const startsAt = new Date(`${this.bookingForm.scheduledAt}:00+02:00`).getTime();
     const service = data?.services.find((item) => item.id === this.bookingForm.serviceId);
     if (!data || !service) {
       return [];
@@ -639,6 +821,12 @@ export class Dashboard {
     if (!vehicles.some((vehicle) => vehicle.id === this.washForm.vehicleId)) {
       this.washForm.vehicleId = vehicles[0]?.id ?? null;
     }
+    this.updateWashPrice();
+  }
+
+  protected onWashVehicleChange(vehicleId: number | null): void {
+    this.washForm.vehicleId = vehicleId;
+    this.updateWashPrice();
   }
 
   protected onWashBookingChange(bookingId: number | null): void {
@@ -652,14 +840,28 @@ export class Dashboard {
     this.washForm.vehicleId = booking.vehicleId;
     this.washForm.serviceId = booking.serviceId;
     this.washForm.washerId = booking.washerId;
-    this.washForm.price =
-      this.data()?.services.find((service) => service.id === booking.serviceId)?.price ?? this.washForm.price;
+    const service = this.data()?.services.find((item) => item.id === booking.serviceId);
+    this.washForm.price = service
+      ? this.servicePrice(service, this.vehicleSizeTier(booking.vehicleId))
+      : this.washForm.price;
   }
 
   protected onWashServiceChange(serviceId: number | null): void {
     this.washForm.serviceId = serviceId;
-    this.washForm.price =
-      this.data()?.services.find((service) => service.id === serviceId)?.price ?? this.washForm.price;
+    this.updateWashPrice();
+  }
+
+  private updateWashPrice(): void {
+    const service = this.data()?.services.find((item) => item.id === this.washForm.serviceId);
+    this.washForm.price = service
+      ? this.servicePrice(service, this.vehicleSizeTier(this.washForm.vehicleId))
+      : 0;
+  }
+
+  protected get washStatusError(): string {
+    return this.washForm.status === 'Completed' && !this.washForm.isPaid
+      ? 'A wash must be paid before it can be completed.'
+      : '';
   }
 
   protected async saveRecord(): Promise<void> {
@@ -669,6 +871,16 @@ export class Dashboard {
 
     if (this.activeSection === 'bookings' && this.bookingScheduleError) {
       this.recordFormError.set(this.bookingScheduleError);
+      return;
+    }
+
+    if (this.activeSection === 'bookings' && this.bookingVehicleDayError) {
+      this.recordFormError.set(this.bookingVehicleDayError);
+      return;
+    }
+
+    if (this.activeSection === 'washes' && this.washStatusError) {
+      this.recordFormError.set(this.washStatusError);
       return;
     }
 
@@ -734,7 +946,7 @@ export class Dashboard {
           vehicleId: this.bookingForm.vehicleId,
           serviceId: this.bookingForm.serviceId,
           washerId: this.bookingForm.washerId,
-          scheduledAt: this.dateToIso(this.bookingForm.scheduledAt),
+          scheduledAt: this.bookingDateToIso(this.bookingForm.scheduledAt),
           status: this.bookingForm.status,
         };
       case 'vehicles':
@@ -747,12 +959,15 @@ export class Dashboard {
               model: this.nullIfBlank(this.vehicleForm.model),
               colour: this.nullIfBlank(this.vehicleForm.colour),
               type: this.vehicleForm.type,
+              sizeTier: this.vehicleForm.sizeTier,
             };
       case 'services':
         return {
           name: this.serviceForm.name.trim(),
           description: this.nullIfBlank(this.serviceForm.description),
           price: this.serviceForm.price,
+          smallPrice: this.serviceForm.smallPrice,
+          largePrice: this.serviceForm.largePrice,
           durationMinutes: this.serviceForm.durationMinutes,
         };
       case 'washes':
@@ -790,6 +1005,41 @@ export class Dashboard {
       throw new Error('Enter a valid date and time.');
     }
     return date.toISOString();
+  }
+
+  private bookingDateToIso(value: string): string {
+    const date = new Date(`${value}:00+02:00`);
+    if (!value || Number.isNaN(date.getTime())) {
+      throw new Error('Enter a valid booking date and time.');
+    }
+    return date.toISOString();
+  }
+
+  private southAfricaDate(value: Date): string {
+    return new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Africa/Johannesburg',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(value);
+  }
+
+  private southAfricaTime(): string {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Johannesburg',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const hour = parts.find((part) => part.type === 'hour')?.value ?? '00';
+    const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? '00') + 1;
+    const normalizedMinute = minute === 60 ? 0 : minute;
+    const normalizedHour = minute === 60 ? (Number(hour) + 1) % 24 : Number(hour);
+    return `${normalizedHour.toString().padStart(2, '0')}:${normalizedMinute.toString().padStart(2, '0')}`;
+  }
+
+  private latestOf(left: string, right: string): string {
+    return left > right ? left : right;
   }
 
   private today(): string {

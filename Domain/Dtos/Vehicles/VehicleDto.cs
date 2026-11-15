@@ -11,6 +11,9 @@ namespace Domain.Dtos.Vehicles
 
     [Required]
     [StringLength(20)]
+    [RegularExpression(
+      @"(?i)^(?:[A-Z]{3}\s+[0-9]{3}\s+[A-Z]{2}|[A-Z]{2}\s+[0-9]{2}\s+[A-Z]{2}\s+[A-Z]{2}|[A-Z]{2}\s+[0-9]{3}\s+[A-Z]{3})$",
+      ErrorMessage = "Use a South African registration such as CLS 883 MP, BV 01 BB GP, or GP 123 ABC.")]
     public string Registration { get; set; } = string.Empty;
 
     [StringLength(80)]
@@ -23,5 +26,8 @@ namespace Domain.Dtos.Vehicles
     public string? Colour { get; set; }
 
     public VehicleType Type { get; set; } = VehicleType.Sedan;
+
+    [EnumDataType(typeof(VehicleSizeTier))]
+    public VehicleSizeTier SizeTier { get; set; } = VehicleSizeTier.Medium;
   }
 }

@@ -22,6 +22,8 @@ describe('ManagementService', () => {
       name: 'Premium wash',
       description: null,
       price: 250,
+      smallPrice: 200,
+      largePrice: 300,
       durationMinutes: 45,
     });
 
@@ -32,6 +34,8 @@ describe('ManagementService', () => {
       name: 'Premium wash',
       description: null,
       price: 250,
+      smallPrice: 200,
+      largePrice: 300,
       durationMinutes: 45,
     });
     request.flush({ isSucceed: true });
@@ -41,11 +45,12 @@ describe('ManagementService', () => {
   it('updates the selected record with its ID in the route and body', async () => {
     const saved = service.saveRecord('token', 'vehicles', 12, {
       customerId: 3,
-      registration: 'XYZ789',
+      registration: 'BV 01 BB GP',
       make: 'Toyota',
       model: 'Corolla',
       colour: 'Blue',
       type: 'Sedan',
+      sizeTier: 'Medium',
     });
 
     const request = http.expectOne('http://localhost:5163/api/vehicles/12');
@@ -53,11 +58,12 @@ describe('ManagementService', () => {
     expect(request.request.body).toEqual({
       id: 12,
       customerId: 3,
-      registration: 'XYZ789',
+      registration: 'BV 01 BB GP',
       make: 'Toyota',
       model: 'Corolla',
       colour: 'Blue',
       type: 'Sedan',
+      sizeTier: 'Medium',
     });
     request.flush({ isSucceed: true });
     await saved;
@@ -80,9 +86,9 @@ describe('ManagementService', () => {
       },
       {
         section: 'vehicles',
-        payload: { customerId: 1, registration: 'ABC123', make: 'Toyota', model: 'Corolla', colour: 'Blue', type: 'Sedan' },
+        payload: { customerId: 1, registration: 'CLS 883 MP', make: 'Toyota', model: 'Corolla', colour: 'Blue', type: 'Sedan', sizeTier: 'Medium' },
       },
-      { section: 'services', payload: { name: 'Wash', description: null, price: 100, durationMinutes: 30 } },
+      { section: 'services', payload: { name: 'Wash', description: null, price: 100, smallPrice: 80, largePrice: 130, durationMinutes: 30 } },
       {
         section: 'washes',
         payload: {

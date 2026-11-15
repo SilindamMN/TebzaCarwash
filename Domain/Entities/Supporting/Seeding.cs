@@ -69,10 +69,10 @@
             if (!await db.Set<Service>().AnyAsync())
             {
                 db.Set<Service>().AddRange(
-                    new Service { Name = "Basic Wash", Description = "Exterior wash and dry", Price = 80m, DurationMinutes = 20 },
-                    new Service { Name = "Full Wash", Description = "Exterior and interior clean", Price = 150m, DurationMinutes = 45 },
-                    new Service { Name = "Interior Clean", Description = "Vacuum and interior wipe-down", Price = 100m, DurationMinutes = 30 },
-                    new Service { Name = "Polish & Wax", Description = "Wash, polish and wax finish", Price = 300m, DurationMinutes = 90 });
+                    new Service { Name = "Basic Wash", Description = "Exterior wash and dry", Price = 80m, SmallPrice = 80m, LargePrice = 80m, DurationMinutes = 20 },
+                    new Service { Name = "Full Wash", Description = "Exterior and interior clean", Price = 150m, SmallPrice = 150m, LargePrice = 150m, DurationMinutes = 45 },
+                    new Service { Name = "Interior Clean", Description = "Vacuum and interior wipe-down", Price = 100m, SmallPrice = 100m, LargePrice = 100m, DurationMinutes = 30 },
+                    new Service { Name = "Polish & Wax", Description = "Wash, polish and wax finish", Price = 300m, SmallPrice = 300m, LargePrice = 300m, DurationMinutes = 90 });
                 await db.SaveChangesAsync();
             }
 

@@ -25,6 +25,8 @@
 
         public VehicleType Type { get; set; } = VehicleType.Sedan;
 
+        public VehicleSizeTier SizeTier { get; set; } = VehicleSizeTier.Medium;
+
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
         public ICollection<Wash> Washes { get; set; } = new List<Wash>();

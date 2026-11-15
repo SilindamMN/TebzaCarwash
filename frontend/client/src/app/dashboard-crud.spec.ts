@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Dashboard } from './dashboard';
+import { VehicleCatalogService } from './vehicle-catalog.service';
 import {
   BookingRecord,
   CustomerRecord,
@@ -71,6 +72,13 @@ describe('Dashboard create and update flows', () => {
             },
           },
         },
+        {
+          provide: VehicleCatalogService,
+          useValue: {
+            getMakes: async () => ['Toyota'],
+            getModels: async () => ['Corolla'],
+          },
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(Dashboard);
@@ -100,58 +108,79 @@ describe('Dashboard create and update flows', () => {
     expect(optionTexts('select[name="vehicleCustomer"]').join(' ')).not.toContain('Wes');
     expect(optionTexts('select[name="vehicleCustomer"]').join(' ')).not.toContain('Sipho');
     await selectValue('select[name="vehicleCustomer"]', 'Ava Customer');
-    await setValue('input[name="vehicleRegistration"]', 'ABC123');
-    await setValue('input[name="vehicleMake"]', 'Toyota');
-    await setValue('input[name="vehicleModel"]', 'Corolla');
+    await setValue('input[name="vehicleRegistration"]', 'bad plate');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.record-form-actions .primary-action')?.disabled).toBe(true);
+    await setValue('input[name="vehicleRegistration"]', 'cls   883 mp');
+    await selectValue('select[name="vehicleMake"]', 'Toyota');
+    await selectValue('select[name="vehicleModel"]', 'Corolla');
+    await selectValue('select[name="vehicleSizeTier"]', 'Small');
+    await setValue('input[name="vehicleRegistration"]', 'bv 01 bb gp');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.record-form-actions .primary-action')?.disabled).toBe(false);
+    await setValue('input[name="vehicleRegistration"]', 'cls 883 mp');
     await submit('Create record');
 
     await chooseSection('Services');
     await click('.add-record-button');
     await setValue('input[name="serviceName"]', 'Basic wash');
     await setValue('input[name="servicePrice"]', '100');
+    await setValue('input[name="serviceSmallPrice"]', '80');
+    await setValue('input[name="serviceLargePrice"]', '130');
     await submit('Create record');
 
     await chooseSection('Bookings');
     await click('.add-record-button');
     await selectValue('select[name="bookingCustomer"]', 'Ava Customer');
-    await selectValue('select[name="bookingVehicle"]', 'ABC123');
+    await selectValue('select[name="bookingVehicle"]', 'CLS 883 MP');
+    expect(optionTexts('select[name="bookingVehicle"]').join(' ')).toContain('Toyota Corolla');
     await selectValue('select[name="bookingService"]', 'Basic wash');
+    expect(optionTexts('select[name="bookingService"]').join(' ')).toContain('80.00');
     expect(bookingWasherDisabled()).toBe(true);
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T08:59');
+    const bookingDate = getFutureDate(7);
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T08:59`);
     const scheduleInput = (fixture.nativeElement as HTMLElement)
       .querySelector<HTMLInputElement>('input[name="bookingScheduledAt"]');
-    expect(scheduleInput?.min).toBe('2026-11-15T09:00');
-    expect(scheduleInput?.max).toBe('2026-11-15T20:30');
+    expect(scheduleInput?.min).toBe(`${bookingDate}T09:00`);
+    expect(scheduleInput?.max).toBe(`${bookingDate}T20:30`);
+    await setValue('input[name="bookingScheduledAt"]', `${getPastDate()}T10:00`);
+    expect((fixture.nativeElement as HTMLElement).querySelector('.booking-schedule-error')?.textContent)
+      .toContain('future date and time');
+    expect(bookingWasherDisabled()).toBe(true);
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T08:59`);
     expect((fixture.nativeElement as HTMLElement).querySelector('.booking-schedule-error')?.textContent)
       .toContain('09:00');
     expect(bookingWasherDisabled()).toBe(true);
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T10:00');
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T10:00`);
     expect(bookingWasherDisabled()).toBe(false);
     expect(optionTexts('select[name="bookingWasher"]').join(' ')).toContain('Wes');
     expect(optionTexts('select[name="bookingWasher"]').join(' ')).not.toContain('Sipho');
     await selectValue('select[name="bookingWasher"]', 'Wes Washer');
     await submit('Create record');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Toyota Corolla');
 
     await click('.add-record-button');
     await selectValue('select[name="bookingCustomer"]', 'Ava Customer');
-    await selectValue('select[name="bookingVehicle"]', 'ABC123');
+    await selectValue('select[name="bookingVehicle"]', 'CLS 883 MP');
     await selectValue('select[name="bookingService"]', 'Basic wash');
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T10:15');
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T10:15`);
     expect(optionTexts('select[name="bookingWasher"]').join(' ')).not.toContain('Wes');
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T20:45');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.booking-schedule-error')?.textContent)
+      .toContain('already has a booking on that day');
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T20:45`);
     expect((fixture.nativeElement as HTMLElement).querySelector('.booking-schedule-error')?.textContent)
       .toContain('21:00');
     expect(bookingWasherDisabled()).toBe(true);
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T20:30');
-    expect(fixture.nativeElement.querySelector('.booking-schedule-error')).toBeNull();
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T20:30`);
+    expect((fixture.nativeElement as HTMLElement).querySelector('.booking-schedule-error')?.textContent)
+      .toContain('already has a booking on that day');
     expect(bookingWasherDisabled()).toBe(false);
-    await setValue('input[name="bookingScheduledAt"]', '2026-11-15T11:00');
+    await setValue('input[name="bookingScheduledAt"]', `${bookingDate}T11:00`);
     expect(optionTexts('select[name="bookingWasher"]').join(' ')).toContain('Wes');
     await click('.modal-close');
 
     await chooseSection('Washes');
     await click('.add-record-button');
     await selectValue('select[name="washBooking"]', '#1');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input[name="washPrice"]')?.value).toBe('80');
     await submit('Create record');
 
     await chooseSection('Customers');
@@ -181,8 +210,11 @@ describe('Dashboard create and update flows', () => {
 
     await chooseSection('Washes');
     await click('.row-action');
+    await selectValue('select[name="washStatus"]', 'Completed');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.record-form-actions .primary-action')?.disabled).toBe(true);
     await setChecked('input[name="washPaid"]', true);
     await setValue('input[name="washPrice"]', '125');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.record-form-actions .primary-action')?.disabled).toBe(false);
     await submit('Save changes');
 
     expect(calls.map((call) => [call.section, call.id])).toEqual([
@@ -203,10 +235,13 @@ describe('Dashboard create and update flows', () => {
     expect(data.customers[0].userId).toBe(12);
     expect(data.washers[0].isAvailable).toBe(false);
     expect(data.vehicles[0].colour).toBe('Red');
+    expect(data.vehicles[0].sizeTier).toBe('Small');
+    expect(data.vehicles[0].registration).toBe('CLS 883 MP');
     expect(data.services[0].price).toBe(125);
     expect(data.bookings[0].status).toBe('Confirmed');
     expect(data.washes[0].isPaid).toBe(true);
     expect(data.washes[0].price).toBe(125);
+    expect(data.washes[0].status).toBe('Completed');
   });
 
   function applyPayload(section: ManagementSection, id: number, payload: ManagementPayload): void {
@@ -248,6 +283,26 @@ describe('Dashboard create and update flows', () => {
         data.washes = replaceRecord(data.washes, { id, ...(payload as Omit<WashRecord, 'id'>) });
         break;
     }
+  }
+
+  function getFutureDate(daysFromToday: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + daysFromToday);
+    return [
+      date.getFullYear(),
+      (date.getMonth() + 1).toString().padStart(2, '0'),
+      date.getDate().toString().padStart(2, '0'),
+    ].join('-');
+  }
+
+  function getPastDate(): string {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return [
+      date.getFullYear(),
+      (date.getMonth() + 1).toString().padStart(2, '0'),
+      date.getDate().toString().padStart(2, '0'),
+    ].join('-');
   }
 
   function replaceRecord<T extends { id: number }>(records: T[], updated: T): T[] {

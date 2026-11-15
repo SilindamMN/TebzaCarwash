@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { App } from './app';
 import { AuthService } from './auth.service';
 import { ManagementData, ManagementService } from './management.service';
+import { VehicleCatalogService } from './vehicle-catalog.service';
 
 const testManagementData: ManagementData = {
   users: [
@@ -12,8 +13,8 @@ const testManagementData: ManagementData = {
   customers: [{ id: 1, userId: 1, firstName: 'Tebza', lastName: 'Customer' }],
   washers: [{ id: 1, userId: 2, isAvailable: true, hiredOn: '2026-01-01T00:00:00Z', firstName: 'Wash', lastName: 'Team' }],
   bookings: [{ id: 1, customerId: 1, vehicleId: 1, serviceId: 1, washerId: 1, scheduledAt: '2026-11-15T10:00:00Z', status: 'Requested' }],
-  vehicles: [{ id: 1, customerId: 1, registration: 'ABC123', make: 'Toyota', model: 'Corolla', colour: 'Blue', type: 'Sedan' }],
-  services: [{ id: 1, name: 'Basic wash', description: null, price: 100, durationMinutes: 30 }],
+  vehicles: [{ id: 1, customerId: 1, registration: 'GP 123 ABC', make: 'Toyota', model: 'Corolla', colour: 'Blue', type: 'Sedan', sizeTier: 'Medium' }],
+  services: [{ id: 1, name: 'Basic wash', description: null, smallPrice: 80, price: 100, largePrice: 130, durationMinutes: 30 }],
   washes: [{ id: 1, bookingId: 1, customerId: 1, vehicleId: 1, serviceId: 1, washerId: 1, price: 100, isPaid: false, status: 'Pending', startedAt: '2026-11-15T10:00:00Z', completedAt: null }],
 };
 
@@ -24,6 +25,13 @@ describe('App', () => {
       providers: [
         provideHttpClient(),
         { provide: ManagementService, useValue: { loadAll: () => Promise.resolve(testManagementData) } },
+        {
+          provide: VehicleCatalogService,
+          useValue: {
+            getMakes: () => Promise.resolve(['Toyota']),
+            getModels: () => Promise.resolve(['Corolla']),
+          },
+        },
       ],
     })
       .compileComponents();

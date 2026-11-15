@@ -62,9 +62,18 @@ public sealed class BookingStatusUpdater : BackgroundService
         continue;
       }
 
+      if (booking.Wash != null &&
+          booking.Wash.Status != WashStatus.Cancelled &&
+          !booking.Wash.IsPaid)
+      {
+        continue;
+      }
+
       booking.Status = BookingStatus.Completed;
       booking.UpdatedAt = now;
-      if (booking.Wash != null && booking.Wash.Status != WashStatus.Cancelled)
+      if (booking.Wash != null &&
+          booking.Wash.IsPaid &&
+          booking.Wash.Status != WashStatus.Cancelled)
       {
         booking.Wash.Status = WashStatus.Completed;
         booking.Wash.CompletedAt ??= now;

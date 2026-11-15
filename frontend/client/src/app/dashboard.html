@@ -282,7 +282,13 @@
                           <td>{{ washerName(booking.washerId) }}</td>
                           <td>{{ booking.scheduledAt | date:'d MMM y, h:mm a' }}</td>
                           <td><span class="status-pill" [class]="'status-pill status-' + statusClass(booking.status)">{{ booking.status }}</span></td>
-                          <td><button class="row-action" type="button" (click)="editBooking(booking)">Edit</button></td>
+                          <td>
+                            @if (isCompletedBooking(booking)) {
+                              <span class="record-secondary">Locked</span>
+                            } @else {
+                              <button class="row-action" type="button" (click)="editBooking(booking)">Edit</button>
+                            }
+                          </td>
                         </tr>
                       } @empty {
                         <tr><td class="empty-state" colspan="7">No matching bookings found.</td></tr>
@@ -299,7 +305,7 @@
                           <td><span class="record-primary">{{ vehicle.make || vehicle.type }} {{ vehicle.model }}</span><small class="record-secondary">Vehicle #{{ vehicle.id }}</small></td>
                           <td><span class="registration-chip">{{ vehicle.registration }}</span></td>
                           <td>{{ customerName(vehicle.customerId) }}</td>
-                          <td>{{ vehicle.type }}</td>
+                          <td>{{ vehicle.type }} · {{ vehicle.sizeTier }}</td>
                           <td>{{ vehicle.colour || '—' }}</td>
                           <td><button class="row-action" type="button" (click)="editVehicle(vehicle)">Edit</button></td>
                         </tr>
@@ -317,7 +323,7 @@
                         <tr>
                           <td><span class="record-primary">{{ service.name }}</span><small class="record-secondary">Service #{{ service.id }}</small></td>
                           <td class="description-cell">{{ service.description || 'No description' }}</td>
-                          <td class="money-cell">{{ service.price | currency:'ZAR':'symbol-narrow':'1.2-2' }}</td>
+                          <td class="money-cell">S {{ service.smallPrice | currency:'ZAR':'symbol-narrow':'1.2-2' }} · M {{ service.price | currency:'ZAR':'symbol-narrow':'1.2-2' }} · L {{ service.largePrice | currency:'ZAR':'symbol-narrow':'1.2-2' }}</td>
                           <td>{{ service.durationMinutes }} min</td>
                           <td>{{ serviceBookingCount(service.id) }}</td>
                           <td><button class="row-action" type="button" (click)="editService(service)">Edit</button></td>
@@ -341,7 +347,13 @@
                           <td><span class="payment-state" [class.payment-paid]="wash.isPaid">{{ wash.isPaid ? 'Paid' : 'Unpaid' }}</span></td>
                           <td class="money-cell">{{ wash.price | currency:'ZAR':'symbol-narrow':'1.2-2' }}</td>
                           <td><span class="status-pill" [class]="'status-pill status-' + statusClass(wash.status)">{{ wash.status }}</span></td>
-                          <td><button class="row-action" type="button" (click)="editWash(wash)">Edit</button></td>
+                          <td>
+                            @if (isCompleted(wash)) {
+                              <span class="record-secondary">Locked</span>
+                            } @else {
+                              <button class="row-action" type="button" (click)="editWash(wash)">Edit</button>
+                            }
+                          </td>
                         </tr>
                       } @empty {
                         <tr><td class="empty-state" colspan="8">No matching washes found.</td></tr>
@@ -452,7 +464,7 @@
                 >
                   <option [ngValue]="null" disabled>Select a service</option>
                   @for (service of data()?.services ?? []; track service.id) {
-                    <option [ngValue]="service.id">{{ service.name }} · {{ service.price | currency:'ZAR':'symbol-narrow':'1.2-2' }}</option>
+                    <option [ngValue]="service.id">{{ service.name }} · {{ servicePrice(service, vehicleSizeTier(bookingForm.vehicleId)) | currency:'ZAR':'symbol-narrow':'1.2-2' }}</option>
                   }
                 </select>
               </label>
@@ -470,6 +482,9 @@
                 />
                 @if (bookingScheduleError) {
                   <small class="booking-schedule-error">{{ bookingScheduleError }}</small>
+                }
+                @if (bookingVehicleDayError) {
+                  <small class="booking-schedule-error">{{ bookingVehicleDayError }}</small>
                 }
               </label>
               <label class="record-field">
@@ -509,27 +524,59 @@
               </label>
               <label class="record-field">
                 <span>Registration</span>
-                <input name="vehicleRegistration" [(ngModel)]="vehicleForm.registration" maxlength="20" required />
+                <input name="vehicleRegistration" [(ngModel)]="vehicleForm.registration" (ngModelChange)="normalizeRegistration($event)" maxlength="20" pattern="([A-Za-z]{3} [0-9]{3} [A-Za-z]{2}|[A-Za-z]{2} [0-9]{2} [A-Za-z]{2} [A-Za-z]{2}|[A-Za-z]{2} [0-9]{3} [A-Za-z]{3})" placeholder="CLS 883 MP" required />
+                <small>Use a format such as CLS 883 MP, BV 01 BB GP, or GP 123 ABC.</small>
               </label>
               <label class="record-field">
                 <span>Make</span>
-                <input name="vehicleMake" [(ngModel)]="vehicleForm.make" maxlength="80" />
+                <select name="vehicleMake" [(ngModel)]="vehicleForm.make" (ngModelChange)="onVehicleMakeChange($event)" required>
+                  <option value="" disabled>Select a make</option>
+                  @for (make of vehicleMakes(); track make) {
+                    <option [value]="make">{{ make }}</option>
+                  }
+                </select>
+                @if (vehicleCatalogLoading()) {
+                  <small>Loading makes...</small>
+                }
               </label>
               <label class="record-field">
                 <span>Model</span>
-                <input name="vehicleModel" [(ngModel)]="vehicleForm.model" maxlength="80" />
+                <select name="vehicleModel" [(ngModel)]="vehicleForm.model" [disabled]="!vehicleForm.make || vehicleModelsLoading()" required>
+                  <option value="" disabled>Select a model</option>
+                  @for (model of vehicleModels(); track model) {
+                    <option [value]="model">{{ model }}</option>
+                  }
+                </select>
+                @if (vehicleModelsLoading()) {
+                  <small>Loading models...</small>
+                }
               </label>
+              @if (vehicleCatalogError()) {
+                <div class="record-form-error" role="alert">
+                  {{ vehicleCatalogError() }}
+                  <button class="row-action" type="button" (click)="retryVehicleCatalog()">Retry</button>
+                </div>
+              }
               <label class="record-field">
                 <span>Colour</span>
                 <input name="vehicleColour" [(ngModel)]="vehicleForm.colour" maxlength="40" />
               </label>
               <label class="record-field">
                 <span>Vehicle type</span>
-                <select name="vehicleType" [(ngModel)]="vehicleForm.type" required>
+                <select name="vehicleType" [(ngModel)]="vehicleForm.type" (ngModelChange)="onVehicleTypeChange($event)" required>
                   @for (type of vehicleTypes; track type) {
                     <option [ngValue]="type">{{ type }}</option>
                   }
                 </select>
+              </label>
+              <label class="record-field">
+                <span>Size tier for pricing</span>
+                <select name="vehicleSizeTier" [(ngModel)]="vehicleForm.sizeTier" required>
+                  @for (tier of vehicleSizeTiers; track tier) {
+                    <option [ngValue]="tier">{{ tier }}</option>
+                  }
+                </select>
+                <small>Suggested automatically from vehicle type; adjust when needed.</small>
               </label>
             }
             @case ('services') {
@@ -543,8 +590,16 @@
               </label>
               <div class="record-field-grid">
                 <label class="record-field">
-                  <span>Price (ZAR)</span>
-                  <input name="servicePrice" type="number" [(ngModel)]="serviceForm.price" min="0" max="1000000" step="0.01" required />
+                  <span>Medium price (ZAR)</span>
+                  <input name="servicePrice" type="number" [(ngModel)]="serviceForm.price" min="0.01" max="1000000" step="0.01" required />
+                </label>
+                <label class="record-field">
+                  <span>Small price (ZAR)</span>
+                  <input name="serviceSmallPrice" type="number" [(ngModel)]="serviceForm.smallPrice" min="0.01" max="1000000" step="0.01" required />
+                </label>
+                <label class="record-field">
+                  <span>Large price (ZAR)</span>
+                  <input name="serviceLargePrice" type="number" [(ngModel)]="serviceForm.largePrice" min="0.01" max="1000000" step="0.01" required />
                 </label>
                 <label class="record-field">
                   <span>Duration (minutes)</span>
@@ -558,7 +613,7 @@
                 <select name="washBooking" [(ngModel)]="washForm.bookingId" (ngModelChange)="onWashBookingChange($event)">
                   <option [ngValue]="null">No booking</option>
                   @for (booking of data()?.bookings ?? []; track booking.id) {
-                    <option [ngValue]="booking.id">#{{ booking.id }} · {{ customerName(booking.customerId) }} · {{ booking.scheduledAt | date:'d MMM, h:mm a' }}</option>
+                    <option [ngValue]="booking.id">#{{ booking.id }} · {{ vehicleName(booking.vehicleId) }} · {{ booking.scheduledAt | date:'d MMM, h:mm a' }}</option>
                   }
                 </select>
               </label>
@@ -573,7 +628,7 @@
               </label>
               <label class="record-field">
                 <span>Vehicle</span>
-                <select name="washVehicle" [(ngModel)]="washForm.vehicleId" required>
+                <select name="washVehicle" [(ngModel)]="washForm.vehicleId" (ngModelChange)="onWashVehicleChange($event)" required>
                   <option [ngValue]="null" disabled>Select a vehicle</option>
                   @for (vehicle of vehiclesForCustomer(washForm.customerId); track vehicle.id) {
                     <option [ngValue]="vehicle.id">{{ vehicleName(vehicle.id) }}</option>
@@ -585,7 +640,7 @@
                 <select name="washService" [(ngModel)]="washForm.serviceId" (ngModelChange)="onWashServiceChange($event)" required>
                   <option [ngValue]="null" disabled>Select a service</option>
                   @for (service of data()?.services ?? []; track service.id) {
-                    <option [ngValue]="service.id">{{ service.name }}</option>
+                    <option [ngValue]="service.id">{{ service.name }} · {{ servicePrice(service, vehicleSizeTier(washForm.vehicleId)) | currency:'ZAR':'symbol-narrow':'1.2-2' }}</option>
                   }
                 </select>
               </label>
@@ -626,6 +681,9 @@
                 <input name="washPaid" type="checkbox" [(ngModel)]="washForm.isPaid" />
                 <span>Payment received</span>
               </label>
+              @if (washStatusError) {
+                <small class="booking-schedule-error">{{ washStatusError }}</small>
+              }
             }
           }
         </div>
@@ -639,7 +697,7 @@
           <button
             class="primary-action"
             type="submit"
-            [disabled]="isSavingRecord() || !recordEditorForm.valid || (activeSection === 'bookings' && bookingScheduleError !== '')"
+            [disabled]="isSavingRecord() || !recordEditorForm.valid || (activeSection === 'bookings' && (bookingScheduleError !== '' || bookingVehicleDayError !== '')) || (activeSection === 'washes' && washStatusError !== '')"
           >
             {{ isSavingRecord() ? 'Saving...' : editingRecordId === null ? 'Create record' : 'Save changes' }}
           </button>

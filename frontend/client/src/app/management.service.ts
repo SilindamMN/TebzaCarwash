@@ -37,6 +37,7 @@ export interface VehicleRecord {
   model: string | null;
   colour: string | null;
   type: string;
+  sizeTier: string;
 }
 
 export interface ServiceRecord {
@@ -44,6 +45,8 @@ export interface ServiceRecord {
   name: string;
   description: string | null;
   price: number;
+  smallPrice: number;
+  largePrice: number;
   durationMinutes: number;
 }
 

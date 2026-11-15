@@ -157,11 +157,17 @@ namespace Domain.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("LargePrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SmallPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -281,6 +287,9 @@ namespace Domain.Migrations
                     b.Property<string>("Registration")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SizeTier")
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");

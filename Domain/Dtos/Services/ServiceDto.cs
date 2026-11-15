@@ -11,8 +11,14 @@ namespace Domain.Dtos.Services
 
     public string? Description { get; set; }
 
-    [Range(typeof(decimal), "0", "1000000")]
+    [Range(typeof(decimal), "0.01", "1000000")]
     public decimal Price { get; set; }
+
+    [Range(typeof(decimal), "0.01", "1000000")]
+    public decimal SmallPrice { get; set; }
+
+    [Range(typeof(decimal), "0.01", "1000000")]
+    public decimal LargePrice { get; set; }
 
     [Range(1, 1440)]
     public int DurationMinutes { get; set; }

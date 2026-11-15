@@ -1,0 +1,214 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 3058 >>
+stream
+0.06 0.12 0.24 rg 0 772 595 70 re f
+1 1 1 rg BT /F2 9 Tf 52 820 Td (TEBZA CARWASH  /  SYSTEM GUIDE) Tj ET
+1 1 1 rg BT /F2 20 Tf 52 794 Td (What the system does and how it works) Tj ET
+0.85 0.89 0.96 rg BT /F1 8 Tf 52 779 Td (Tebza Carwash Management System | Prepared 15 November 2026) Tj ET
+0.86 0.89 0.93 RG 52 758 m 543 758 l S
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 741 Td (Purpose) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 722 Td (Tebza Carwash is a web-based operations system for organizing customers, washers, vehicles,) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 708 Td (services, bookings and completed washes. It provides one dashboard for staff to manage) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 694 Td (records and monitor booking and wash status.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 672 Td (Who uses it) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 653 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 653 Td (Managers and administrators use the dashboard to maintain records and manage bookings) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 639 Td (and washes.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 623 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 623 Td (A person can register an account and then sign in. The current interface opens the) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 609 Td (same management dashboard for signed-in accounts; separate customer self-service) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 595 Td (screens are not currently implemented.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 579 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 579 Td (Washer and customer profiles link operational records to registered user accounts.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 560 Td (How the parts fit together) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 541 Td (The Angular application runs in the browser as a static site on GitHub Pages. It sends JSON) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 527 Td (requests over HTTPS to an ASP.NET Core API. The API uses Entity Framework Core to read and) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 513 Td (write records in SQL Server, and ASP.NET Identity manages accounts and roles.) Tj ET
+0.94 0.96 0.99 rg 52 483 491 31 re f
+0.06 0.18 0.42 rg BT /F2 10 Tf 65 494 Td (Browser  ->  Angular dashboard  ->  .NET API  ->  SQL Server) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 448 Td (Main data relationships) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 429 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 429 Td (A customer owns one or more vehicles. A booking links a customer, vehicle and service,) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 415 Td (with an optional washer.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 399 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 399 Td (A wash can be linked to a booking and records the service, assigned washer, price,) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 385 Td (payment state and progress.) Tj ET
+0.86 0.89 0.93 RG 52 43 m 543 43 l S
+0.34 0.4 0.48 rg BT /F1 8 Tf 52 27 Td (Tebza Carwash  |  System guide  |  15 Nov 2026) Tj ET
+0.34 0.4 0.48 rg BT /F1 8 Tf 505 27 Td (1 / 4) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 3164 >>
+stream
+0.06 0.12 0.24 rg 0 772 595 70 re f
+1 1 1 rg BT /F2 9 Tf 52 820 Td (TEBZA CARWASH  /  SYSTEM GUIDE) Tj ET
+1 1 1 rg BT /F2 20 Tf 52 794 Td (Features and everyday workflows) Tj ET
+0.85 0.89 0.96 rg BT /F1 8 Tf 52 779 Td (From account creation to record management) Tj ET
+0.86 0.89 0.93 RG 52 758 m 543 758 l S
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 741 Td (1. Register and sign in) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 722 Td (Registration sends a name, username, email and password to the API. After registration) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 708 Td (succeeds, the person signs in with username and password. The API verifies the account and) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 694 Td (returns a JWT access token.) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 675 Td (The browser keeps that token in memory and includes it as a Bearer token on management data) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 661 Td (requests. Signing out clears it; refreshing the browser also loses the in-memory token and) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 647 Td (requires signing in again.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 625 Td (2. Use the dashboard) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 606 Td (After sign-in, the dashboard loads users and the six management lists: customers, washers,) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 592 Td (bookings, vehicles, services and washes. Staff can search lists and create or edit records) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 578 Td (through forms.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 556 Td (3. Maintain records) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 537 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 537 Td (Customers and washers are associated with existing user accounts.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 521 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 521 Td (Vehicles belong to customers and store registration, make, model, colour and type.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 505 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 505 Td (Services store a name, description, price and duration in minutes.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 489 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 489 Td (Bookings reserve a service for a customer and vehicle at a scheduled time, with an) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 475 Td (optional washer.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 459 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 459 Td (Washes track operational progress, assigned staff, price and whether payment has been) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 445 Td (recorded.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 426 Td (API pattern) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 407 Td (Each management resource supports list and detail reads, create, update and soft-delete) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 393 Td (operations. The frontend primarily uses GET for loading data, POST for new records and PUT) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 379 Td (for edits.) Tj ET
+0.86 0.89 0.93 RG 52 43 m 543 43 l S
+0.34 0.4 0.48 rg BT /F1 8 Tf 52 27 Td (Tebza Carwash  |  System guide  |  15 Nov 2026) Tj ET
+0.34 0.4 0.48 rg BT /F1 8 Tf 505 27 Td (2 / 4) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3155 >>
+stream
+0.06 0.12 0.24 rg 0 772 595 70 re f
+1 1 1 rg BT /F2 9 Tf 52 820 Td (TEBZA CARWASH  /  SYSTEM GUIDE) Tj ET
+1 1 1 rg BT /F2 20 Tf 52 794 Td (Bookings, availability and statuses) Tj ET
+0.85 0.89 0.96 rg BT /F1 8 Tf 52 779 Td (Rules are checked in both the interface and the API) Tj ET
+0.86 0.89 0.93 RG 52 758 m 543 758 l S
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 741 Td (Operating hours) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 722 Td (Bookings are allowed every day from 09:00 to 21:00 South African time \(UTC+02:00\). The) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 708 Td (selected service must finish by closing time. The date/time picker narrows its selectable) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 694 Td (time range based on the selected service duration; for example, a 30-minute service can) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 680 Td (start as late as 20:30.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 658 Td (Washer availability) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 639 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 639 Td (The washer selector is available only after choosing a service and time.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 623 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 623 Td (Unavailable washers and washers with overlapping Requested or Confirmed bookings are) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 609 Td (excluded.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 593 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 593 Td (The API rechecks that the customer and vehicle match, the service is active, the hours) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 579 Td (are valid, and an assigned washer is available without a conflicting booking.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 560 Td (Booking and wash lifecycle) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 541 Td (Booking statuses are Requested, Confirmed, Completed and Cancelled. Wash statuses are) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 527 Td (Pending, InProgress, Completed and Cancelled. Requested and Confirmed bookings reserve an) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 513 Td (assigned washer; Cancelled and Completed bookings do not.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 491 Td (Automatic completion) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 472 Td (A hosted API service checks once per minute. When an active booking has passed its) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 458 Td (scheduled start plus the service duration, the API changes it to Completed. A linked wash) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 444 Td (is also marked Completed unless it was Cancelled. This is a time-based assumption; it does) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 430 Td (not confirm that staff physically finished the wash.) Tj ET
+0.99 0.96 0.93 rg 52 375 491 44 re f
+0.93 0.3 0.26 rg 52 375 3 44 re f
+0.06 0.1 0.16 rg BT /F2 9.1 Tf 65 409 Td (A service ending exactly at 21:00 is valid. A service ending later is rejected by the) Tj ET
+0.06 0.1 0.16 rg BT /F2 9.1 Tf 65 395 Td (API.) Tj ET
+0.86 0.89 0.93 RG 52 43 m 543 43 l S
+0.34 0.4 0.48 rg BT /F1 8 Tf 52 27 Td (Tebza Carwash  |  System guide  |  15 Nov 2026) Tj ET
+0.34 0.4 0.48 rg BT /F1 8 Tf 505 27 Td (3 / 4) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 3532 >>
+stream
+0.06 0.12 0.24 rg 0 772 595 70 re f
+1 1 1 rg BT /F2 9 Tf 52 820 Td (TEBZA CARWASH  /  SYSTEM GUIDE) Tj ET
+1 1 1 rg BT /F2 20 Tf 52 794 Td (Technology, deployment and important notes) Tj ET
+0.85 0.89 0.96 rg BT /F1 8 Tf 52 779 Td (Where the system runs and what to know before production use) Tj ET
+0.86 0.89 0.93 RG 52 758 m 543 758 l S
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 741 Td (Technology and addresses) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 722 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 722 Td (Frontend: Angular, built as static files for GitHub Pages.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 706 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 706 Td (Production frontend: https://silindammn.github.io/TebzaCarwash/) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 690 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 690 Td (Production API: https://tebzacarwash.runasp.net/api) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 674 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 674 Td (Local development API: http://localhost:5163/api) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 658 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 658 Td (Backend: ASP.NET Core 8, ASP.NET Identity, JWT authentication, Entity Framework Core) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 644 Td (and SQL Server.) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 628 Td (A GitHub Actions workflow builds the Angular project with the repository subpath and) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 614 Td (publishes the browser output to GitHub Pages. Backend changes must be published separately) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.4 Tf 52 600 Td (to the API host.) Tj ET
+0.09 0.34 0.91 rg BT /F2 12 Tf 52 578 Td (Important production security notes) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 559 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 559 Td (The frontend sends JWTs for management requests, but the generic CRUD controllers) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 545 Td (currently do not enforce authorization. Protect these routes server-side before) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 531 Td (storing real customer data.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 515 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 515 Td (The user-list endpoints are not currently restricted to administrators. Limit access) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 501 Td (and return only the user data required by the dashboard.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 485 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 485 Td (The API currently permits requests from any CORS origin. Restrict CORS to the deployed) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 471 Td (frontend origin.) Tj ET
+0.09 0.34 0.91 rg BT /F2 10 Tf 56 455 Td (-) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 455 Td (Review the startup demo-data seeder before production: it resets seeded account) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 441 Td (passwords on startup. Remove that behavior and use managed secrets and controlled) Tj ET
+0.06 0.1 0.16 rg BT /F1 9.2 Tf 70 427 Td (account provisioning.) Tj ET
+0.99 0.96 0.93 rg 52 375 491 44 re f
+0.93 0.3 0.26 rg 52 375 3 44 re f
+0.06 0.1 0.16 rg BT /F2 9.1 Tf 65 409 Td (Current user registration assigns the USER role. The startup seeder now creates that) Tj ET
+0.06 0.1 0.16 rg BT /F2 9.1 Tf 65 395 Td (role so registration can succeed after the updated backend is deployed.) Tj ET
+0.86 0.89 0.93 RG 52 43 m 543 43 l S
+0.34 0.4 0.48 rg BT /F1 8 Tf 52 27 Td (Tebza Carwash  |  System guide  |  15 Nov 2026) Tj ET
+0.34 0.4 0.48 rg BT /F1 8 Tf 505 27 Td (4 / 4) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000141 00000 n 
+0000000211 00000 n 
+0000000286 00000 n 
+0000003396 00000 n 
+0000003532 00000 n 
+0000006748 00000 n 
+0000006884 00000 n 
+0000010091 00000 n 
+0000010228 00000 n 
+0000013813 00000 n 
+trailer
+<< /Size 13 /Root 1 0 R >>
+startxref
+13951
+%%EOF

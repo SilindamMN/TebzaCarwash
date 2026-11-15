@@ -55,7 +55,7 @@ namespace API.Controllers
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    public virtual async Task<IActionResult> Delete(int id)
     {
       var result = await this.genericService.DeleteAsync(id);
       return result.IsSucceed ? this.Ok(result) : this.StatusCode(result.StatusCode, result);
